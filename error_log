@@ -1,0 +1,424 @@
+[01-Jun-2025 16:49:41 America/Fortaleza] PHP Parse error:  syntax error, unexpected token ">", expecting end of file in /home2/microl68/public_html/meraki/precadastro/index.php on line 10
+[01-Jun-2025 16:50:10 America/Fortaleza] PHP Parse error:  syntax error, unexpected token ">", expecting end of file in /home2/microl68/public_html/meraki/precadastro/index.php on line 10
+[01-Jun-2025 16:50:27 America/Fortaleza] PHP Warning:  include(nav.php): Failed to open stream: No such file or directory in /home2/microl68/public_html/meraki/precadastro/index.php on line 8
+[01-Jun-2025 16:50:27 America/Fortaleza] PHP Warning:  include(): Failed opening 'nav.php' for inclusion (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home2/microl68/public_html/meraki/precadastro/index.php on line 8
+[01-Jun-2025 16:50:53 America/Fortaleza] PHP Warning:  include(nav.php): Failed to open stream: No such file or directory in /home2/microl68/public_html/meraki/precadastro/index.php on line 149
+[01-Jun-2025 16:50:53 America/Fortaleza] PHP Warning:  include(): Failed opening 'nav.php' for inclusion (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home2/microl68/public_html/meraki/precadastro/index.php on line 149
+[01-Jun-2025 16:50:55 America/Fortaleza] PHP Warning:  include(nav.php): Failed to open stream: No such file or directory in /home2/microl68/public_html/meraki/precadastro/index.php on line 149
+[01-Jun-2025 16:50:55 America/Fortaleza] PHP Warning:  include(): Failed opening 'nav.php' for inclusion (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home2/microl68/public_html/meraki/precadastro/index.php on line 149
+[01-Jun-2025 16:50:55 America/Fortaleza] PHP Warning:  include(nav.php): Failed to open stream: No such file or directory in /home2/microl68/public_html/meraki/precadastro/index.php on line 149
+[01-Jun-2025 16:50:55 America/Fortaleza] PHP Warning:  include(): Failed opening 'nav.php' for inclusion (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home2/microl68/public_html/meraki/precadastro/index.php on line 149
+[01-Jun-2025 16:50:56 America/Fortaleza] PHP Warning:  include(nav.php): Failed to open stream: No such file or directory in /home2/microl68/public_html/meraki/precadastro/index.php on line 149
+[01-Jun-2025 16:50:56 America/Fortaleza] PHP Warning:  include(): Failed opening 'nav.php' for inclusion (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home2/microl68/public_html/meraki/precadastro/index.php on line 149
+[01-Jun-2025 16:51:14 America/Fortaleza] PHP Warning:  include(nav.php): Failed to open stream: No such file or directory in /home2/microl68/public_html/meraki/precadastro/index.php on line 149
+[01-Jun-2025 16:51:14 America/Fortaleza] PHP Warning:  include(): Failed opening 'nav.php' for inclusion (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home2/microl68/public_html/meraki/precadastro/index.php on line 149
+[01-Jun-2025 16:54:25 America/Fortaleza] PHP Warning:  include(../nav.php): Failed to open stream: No such file or directory in /home2/microl68/public_html/meraki/index.php on line 149
+[01-Jun-2025 16:54:25 America/Fortaleza] PHP Warning:  include(): Failed opening '../nav.php' for inclusion (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home2/microl68/public_html/meraki/index.php on line 149
+[01-Jun-2025 17:02:08 America/Fortaleza] PHP Warning:  include(../nav.php): Failed to open stream: No such file or directory in /home2/microl68/public_html/meraki/precadastro.php on line 149
+[01-Jun-2025 17:02:08 America/Fortaleza] PHP Warning:  include(): Failed opening '../nav.php' for inclusion (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home2/microl68/public_html/meraki/precadastro.php on line 149
+[01-Jun-2025 17:04:53 America/Fortaleza] PHP Warning:  include(../nav.php): Failed to open stream: No such file or directory in /home2/microl68/public_html/meraki/precadastro.php on line 149
+[01-Jun-2025 17:04:53 America/Fortaleza] PHP Warning:  include(): Failed opening '../nav.php' for inclusion (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home2/microl68/public_html/meraki/precadastro.php on line 149
+[01-Jun-2025 17:49:29 America/Fortaleza] PHP Warning:  Undefined array key "consolidado" in /home2/microl68/public_html/meraki/visualizar_contratos.php on line 18
+[01-Jun-2025 21:23:24 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'carga_horaria' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:10
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(10): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 10
+[01-Jun-2025 21:27:27 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'carga_horaria' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:14
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(14): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 14
+[01-Jun-2025 21:35:46 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'carga_horaria' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:14
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(14): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 14
+[01-Jun-2025 22:29:37 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'dia_semana' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:5
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(5): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 5
+[01-Jun-2025 22:29:55 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'dia_semana' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:5
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(5): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 5
+[01-Jun-2025 22:33:28 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'dia_semana' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:5
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(5): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 5
+[02-Jun-2025 08:55:34 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'dia_semana' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:5
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(5): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 5
+[02-Jun-2025 11:09:36 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'dia_semana' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:5
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(5): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 5
+[02-Jun-2025 16:53:28 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'dia_semana' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:5
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(5): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 5
+[02-Jun-2025 17:13:41 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'dia_semana' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:5
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(5): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 5
+[02-Jun-2025 17:17:02 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 't.data_inicio' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:19
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(19): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 19
+[02-Jun-2025 17:20:37 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 't.data_inicio' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:19
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(19): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 19
+[02-Jun-2025 17:23:01 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 't.data_inicio' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:19
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(19): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 19
+[02-Jun-2025 17:23:17 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 't.data_inicio' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:19
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(19): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 19
+[02-Jun-2025 17:23:52 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 't.data_inicio' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:23
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(23): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 23
+[02-Jun-2025 17:25:12 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 't.data_inicio' in 'field list' in /home2/microl68/public_html/meraki/get_turma.php:23
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_turma.php(23): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_turma.php on line 23
+[02-Jun-2025 18:10:15 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: explode(): Argument #2 ($string) must be of type string, array given in /home2/microl68/public_html/meraki/salvar_contrato.php:13
+Stack trace:
+#0 /home2/microl68/public_html/meraki/salvar_contrato.php(13): explode(',', Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/salvar_contrato.php on line 13
+[02-Jun-2025 18:13:10 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: explode(): Argument #2 ($string) must be of type string, array given in /home2/microl68/public_html/meraki/salvar_contrato.php:13
+Stack trace:
+#0 /home2/microl68/public_html/meraki/salvar_contrato.php(13): explode(',', Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/salvar_contrato.php on line 13
+[02-Jun-2025 18:13:59 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: explode(): Argument #2 ($string) must be of type string, array given in /home2/microl68/public_html/meraki/salvar_contrato.php:13
+Stack trace:
+#0 /home2/microl68/public_html/meraki/salvar_contrato.php(13): explode(',', Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/salvar_contrato.php on line 13
+[02-Jun-2025 18:17:15 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: explode(): Argument #2 ($string) must be of type string, array given in /home2/microl68/public_html/meraki/salvar_contrato.php:16
+Stack trace:
+#0 /home2/microl68/public_html/meraki/salvar_contrato.php(16): explode(',', Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/salvar_contrato.php on line 16
+[02-Jun-2025 18:18:56 America/Fortaleza] PHP Fatal error:  Uncaught Error: Call to a member function format() on false in /home2/microl68/public_html/meraki/salvar_contrato.php:38
+Stack trace:
+#0 {main}
+  thrown in /home2/microl68/public_html/meraki/salvar_contrato.php on line 38
+[02-Jun-2025 21:38:59 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[02-Jun-2025 21:38:59 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[02-Jun-2025 21:38:59 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[02-Jun-2025 21:38:59 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 137
+[02-Jun-2025 21:38:59 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 137
+[02-Jun-2025 21:38:59 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 148
+[02-Jun-2025 21:38:59 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 148
+[02-Jun-2025 21:48:53 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[02-Jun-2025 21:48:53 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[02-Jun-2025 21:48:53 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 21:48:53 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 21:48:53 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 21:48:53 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[02-Jun-2025 21:48:53 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[02-Jun-2025 21:54:07 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/editar_aluno.php:41
+Stack trace:
+#0 /home2/microl68/public_html/meraki/editar_aluno.php(41): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/editar_aluno.php on line 41
+[02-Jun-2025 21:54:21 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[02-Jun-2025 21:54:21 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[02-Jun-2025 21:54:21 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 21:54:21 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 21:54:21 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 21:54:21 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[02-Jun-2025 21:54:21 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[02-Jun-2025 21:54:37 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/editar_aluno.php:41
+Stack trace:
+#0 /home2/microl68/public_html/meraki/editar_aluno.php(41): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/editar_aluno.php on line 41
+[02-Jun-2025 21:54:44 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[02-Jun-2025 21:54:44 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[02-Jun-2025 21:54:44 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 21:54:44 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 21:54:44 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 21:54:44 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[02-Jun-2025 21:54:44 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[02-Jun-2025 22:23:23 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[02-Jun-2025 22:23:23 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[02-Jun-2025 22:23:23 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 22:23:23 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 22:23:23 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[02-Jun-2025 22:23:23 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[02-Jun-2025 22:23:23 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[05-Jun-2025 11:33:17 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[05-Jun-2025 11:33:17 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[05-Jun-2025 11:33:17 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[05-Jun-2025 11:33:17 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[05-Jun-2025 11:33:17 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[05-Jun-2025 11:33:17 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[05-Jun-2025 11:33:17 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[05-Jun-2025 11:55:50 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[05-Jun-2025 11:55:50 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 108
+[05-Jun-2025 11:55:50 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[05-Jun-2025 11:55:50 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[05-Jun-2025 11:55:50 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 118
+[05-Jun-2025 11:55:50 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[05-Jun-2025 11:55:50 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 128
+[05-Jun-2025 11:58:54 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 11:58:54 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 11:58:54 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 11:58:54 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 11:58:54 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 11:58:54 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 11:58:54 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 12:00:11 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 12:00:11 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 12:00:11 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 12:00:11 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 12:00:11 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 12:00:11 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 12:00:11 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 12:36:57 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'vagas_por_sala' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:15
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(15): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 15
+[05-Jun-2025 15:28:41 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 15:28:41 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 15:28:41 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 15:28:41 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 15:28:41 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 15:28:41 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 15:28:41 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 15:37:46 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'vagas_por_sala' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:15
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(15): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 15
+[05-Jun-2025 19:10:06 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'vagas_por_sala' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:15
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(15): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 15
+[05-Jun-2025 19:14:51 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'vagas_por_sala' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:15
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(15): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 15
+[05-Jun-2025 19:23:33 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'vagas_por_sala' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:15
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(15): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 15
+[05-Jun-2025 19:23:36 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'vagas_por_sala' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:15
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(15): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 15
+[05-Jun-2025 19:23:39 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'vagas_por_sala' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:15
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(15): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 15
+[05-Jun-2025 19:23:46 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'vagas_por_sala' in 'field list' in /home2/microl68/public_html/meraki/precadastro.php:15
+Stack trace:
+#0 /home2/microl68/public_html/meraki/precadastro.php(15): PDO->query('SELECT id, nome...')
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/precadastro.php on line 15
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:18 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:26:45 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 203
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:43 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:33:54 America/Fortaleza] PHP Warning:  Undefined array key "vagas_por_sala" in /home2/microl68/public_html/meraki/precadastro.php on line 211
+[05-Jun-2025 19:42:47 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 19:42:47 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 19:42:47 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 19:42:47 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 19:42:47 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 19:42:47 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 19:42:47 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 19:43:03 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 19:43:03 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 19:43:03 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 19:43:03 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 19:43:03 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 19:43:03 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 19:43:03 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 19:44:49 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 19:44:49 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 146
+[05-Jun-2025 19:44:49 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 19:44:49 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 19:44:49 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 155
+[05-Jun-2025 19:44:49 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 19:44:49 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[05-Jun-2025 19:46:36 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 149
+[05-Jun-2025 19:46:36 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 149
+[05-Jun-2025 19:46:36 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 158
+[05-Jun-2025 19:46:36 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 158
+[05-Jun-2025 19:46:36 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 158
+[05-Jun-2025 19:46:36 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 167
+[05-Jun-2025 19:46:36 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 167
+[05-Jun-2025 19:46:58 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 149
+[05-Jun-2025 19:46:58 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 149
+[05-Jun-2025 19:46:58 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 158
+[05-Jun-2025 19:46:58 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 158
+[05-Jun-2025 19:46:58 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 158
+[05-Jun-2025 19:46:58 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 167
+[05-Jun-2025 19:46:58 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 167
+[05-Jun-2025 19:47:07 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/editar_aluno.php:40
+Stack trace:
+#0 /home2/microl68/public_html/meraki/editar_aluno.php(40): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/editar_aluno.php on line 40
+[05-Jun-2025 19:53:10 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 149
+[05-Jun-2025 19:53:10 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 149
+[05-Jun-2025 19:53:10 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 158
+[05-Jun-2025 19:53:10 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 158
+[05-Jun-2025 19:53:10 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 158
+[05-Jun-2025 19:53:10 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 167
+[05-Jun-2025 19:53:10 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 167
+[05-Jun-2025 19:53:18 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/editar_aluno.php:40
+Stack trace:
+#0 /home2/microl68/public_html/meraki/editar_aluno.php(40): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/editar_aluno.php on line 40
+[05-Jun-2025 20:13:13 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/editar_aluno.php:40
+Stack trace:
+#0 /home2/microl68/public_html/meraki/editar_aluno.php(40): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/editar_aluno.php on line 40
+[10-Jun-2025 20:37:16 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 152
+[10-Jun-2025 20:37:16 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 152
+[10-Jun-2025 20:37:16 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[10-Jun-2025 20:37:16 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[10-Jun-2025 20:37:16 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[10-Jun-2025 20:37:16 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 170
+[10-Jun-2025 20:37:16 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 170
+[10-Jun-2025 20:41:45 America/Fortaleza] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home2/microl68/public_html/meraki/mapa_turmas.php on line 2) in /home2/microl68/public_html/meraki/nav.php on line 2
+[10-Jun-2025 20:42:40 America/Fortaleza] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home2/microl68/public_html/meraki/mapa_turmas.php on line 2) in /home2/microl68/public_html/meraki/nav.php on line 2
+[10-Jun-2025 20:56:38 America/Fortaleza] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home2/microl68/public_html/meraki/mapa_turmas.php on line 2) in /home2/microl68/public_html/meraki/nav.php on line 2
+[10-Jun-2025 20:56:49 America/Fortaleza] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home2/microl68/public_html/meraki/mapa_turmas.php on line 2) in /home2/microl68/public_html/meraki/nav.php on line 2
+[10-Jun-2025 22:34:12 America/Fortaleza] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home2/microl68/public_html/meraki/mapa_turmas.php on line 2) in /home2/microl68/public_html/meraki/nav.php on line 2
+[10-Jun-2025 22:40:19 America/Fortaleza] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home2/microl68/public_html/meraki/mapa_turmas.php on line 2) in /home2/microl68/public_html/meraki/nav.php on line 2
+[10-Jun-2025 22:41:28 America/Fortaleza] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home2/microl68/public_html/meraki/mapa_turmas.php on line 2) in /home2/microl68/public_html/meraki/nav.php on line 2
+[10-Jun-2025 22:41:34 America/Fortaleza] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /home2/microl68/public_html/meraki/mapa_turmas.php on line 2) in /home2/microl68/public_html/meraki/nav.php on line 2
+[10-Jun-2025 23:24:27 America/Fortaleza] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /home2/microl68/public_html/meraki/registrar_tratativa.php:10) in /home2/microl68/public_html/meraki/registrar_tratativa.php on line 27
+[10-Jun-2025 23:25:56 America/Fortaleza] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /home2/microl68/public_html/meraki/registrar_tratativa.php:10) in /home2/microl68/public_html/meraki/registrar_tratativa.php on line 27
+[11-Jun-2025 07:54:09 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'microl68_meraki.tratativas' doesn't exist in /home2/microl68/public_html/meraki/get_tratativas.php:12
+Stack trace:
+#0 /home2/microl68/public_html/meraki/get_tratativas.php(12): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/get_tratativas.php on line 12
