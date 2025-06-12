@@ -15,138 +15,539 @@ require 'conexao.php'; // Certifique-se de que conexao.php está configurado cor
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
-    </head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* CSS incorporado para evitar dependência de arquivo externo */
+        .kanban-column {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 500px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .kanban-title {
+            text-align: center;
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .kanban-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: move;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .kanban-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .kanban-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 5px;
+            justify-content: flex-end;
+        }
+        
+        .kanban-actions button {
+            border: none;
+            background: none;
+            padding: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .kanban-actions button:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .prioridade-alta { color: #dc3545; font-weight: bold; }
+        .prioridade-media { color: #fd7e14; font-weight: bold; }
+        .prioridade-baixa { color: #28a745; font-weight: bold; }
+        
+        .etiqueta {
+            background-color: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #495057;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .tratativa-item {
+            border-left: 3px solid #007bff;
+            padding-left: 15px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .kanban-tarefas {
+            min-height: 400px;
+        }
+        
+        .gu-mirror {
+            opacity: 0.8;
+            transform: rotate(5deg);
+        }
+        
+        .gu-hide {
+            display: none !important;
+        }
+        
+        .gu-unselectable {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+        }
+        
+        .gu-transit {
+            opacity: 0.2;
+        }
+    </style>
+</head>
 <body>
 
-<?php include 'nav.php'; ?>
+<?php 
+// Incluir navegação se existir, senão criar uma básica
+if (file_exists('nav.php')) {
+    include 'nav.php';
+} else {
+    echo '<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="#">Sistema Meraki</a>
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="logout.php">Sair</a>
+                </div>
+            </div>
+          </nav>';
+}
+?>
 
 <div class="container mt-4">
-    <h2 class="mb-4">Painel de Tarefas (Kanban)</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Painel de Tarefas (Kanban)</h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" onclick="carregarTarefas()">
+                <i class="fas fa-sync-alt"></i> Atualizar
+            </button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdicionarTarefa">
+                <i class="fas fa-plus"></i> Adicionar Tarefa
+            </button>
+        </div>
+    </div>
 
     <div class="row filtros-kanban mb-3">
-        <div class="col-md-6 mb-2">
-            <input type="text" id="filtroBusca" class="form-control" placeholder="Buscar tarefa por título ou descrição..." onkeyup="filtrarTarefas()">
+        <div class="col-md-8 mb-2">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" id="filtroBusca" class="form-control" placeholder="Buscar tarefa por título, descrição ou usuário..." onkeyup="filtrarTarefas()">
+                <button class="btn btn-outline-secondary" onclick="limparFiltro()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
-        <div class="col-md-6 text-md-end mb-2">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdicionarTarefa">Adicionar Tarefa</button>
+        <div class="col-md-4 mb-2">
+            <select id="filtroPrioridade" class="form-select" onchange="filtrarTarefas()">
+                <option value="">Todas as prioridades</option>
+                <option value="Alta">Alta</option>
+                <option value="Média">Média</option>
+                <option value="Baixa">Baixa</option>
+            </select>
         </div>
+    </div>
+
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+        <p class="mt-2">Carregando tarefas...</p>
     </div>
 
     <div class="row" id="quadro-kanban">
         <div class="col-md-4">
             <div class="kanban-column" id="afazer">
-                <h4 class="kanban-title">A Fazer</h4>
+                <h4 class="kanban-title">
+                    <i class="fas fa-clipboard-list"></i> A Fazer
+                    <span class="badge bg-secondary ms-2" id="count-afazer">0</span>
+                </h4>
                 <div class="kanban-tarefas"></div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="kanban-column" id="progresso">
-                <h4 class="kanban-title">Em Progresso</h4>
+                <h4 class="kanban-title">
+                    <i class="fas fa-hourglass-half"></i> Em Progresso
+                    <span class="badge bg-warning ms-2" id="count-progresso">0</span>
+                </h4>
                 <div class="kanban-tarefas"></div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="kanban-column" id="concluido">
-                <h4 class="kanban-title">Concluído</h4>
+                <h4 class="kanban-title">
+                    <i class="fas fa-check-circle"></i> Concluído
+                    <span class="badge bg-success ms-2" id="count-concluido">0</span>
+                </h4>
                 <div class="kanban-tarefas"></div>
             </div>
         </div>
     </div>
 </div>
 
-<?php include 'modais_kanban.php'; ?>
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Modais -->
+<?php 
+if (file_exists('modais_kanban.php')) {
+    include 'modais_kanban.php';
+} else {
+    // Modais básicos inline se o arquivo não existir
+    echo '
+    <!-- Modal Adicionar Tarefa -->
+    <div class="modal fade" id="modalAdicionarTarefa" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adicionar Nova Tarefa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formAdicionarTarefa">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Título *</label>
+                            <input type="text" class="form-control" id="adicionar_titulo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <textarea class="form-control" id="adicionar_descricao" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Data do Evento</label>
+                            <input type="date" class="form-control" id="adicionar_data">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Prioridade</label>
+                            <select class="form-select" id="adicionar_prioridade">
+                                <option value="">Selecione</option>
+                                <option value="Baixa">Baixa</option>
+                                <option value="Média">Média</option>
+                                <option value="Alta">Alta</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Etiqueta</label>
+                            <input type="text" class="form-control" id="adicionar_etiqueta">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Atribuir a</label>
+                            <select class="form-select" id="adicionar_usuario_atribuido">
+                                <option value="">Ninguém</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Adicionar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>';
+}
+?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
 
 <script>
-// Armazena todas as tarefas carregadas para facilitar a busca
-let todasAsTarefas = {
-    afazer: [],
-    progresso: [],
-    concluido: []
-};
+// Classe para gerenciar o Kanban
+class KanbanManager {
+    constructor() {
+        this.todasAsTarefas = {
+            afazer: [],
+            progresso: [],
+            concluido: []
+        };
+        this.todosOsUsuarios = [];
+        this.dragula = null;
+        this.init();
+    }
 
-// NOVO: Armazena todos os usuários carregados para popular os dropdowns
-let todosOsUsuarios = [];
+    async init() {
+        try {
+            this.mostrarLoading(true);
+            await this.carregarUsuarios();
+            await this.carregarTarefas();
+            this.inicializarDragula();
+            this.configurarEventListeners();
+            this.mostrarLoading(false);
+        } catch (error) {
+            console.error('Erro ao inicializar Kanban:', error);
+            this.showToast('Erro ao carregar o sistema', 'danger');
+            this.mostrarLoading(false);
+        }
+    }
 
-document.addEventListener("DOMContentLoaded", async () => { // Adicionado 'async' aqui
-    // Carrega usuários e tarefas ao iniciar a página
-    await carregarUsuarios(); // Espera os usuários serem carregados primeiro
-    await carregarTarefas(); // Depois carrega as tarefas
+    mostrarLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        const kanban = document.getElementById('quadro-kanban');
+        if (show) {
+            spinner.style.display = 'block';
+            kanban.style.opacity = '0.3';
+        } else {
+            spinner.style.display = 'none';
+            kanban.style.opacity = '1';
+        }
+    }
 
-    // Inicializa Dragula para as colunas do Kanban
-    const dragulaKanban = dragula([
-        document.querySelector('#afazer .kanban-tarefas'),
-        document.querySelector('#progresso .kanban-tarefas'),
-        document.querySelector('#concluido .kanban-tarefas')
-    ]);
-
-    // Evento de 'drop' do Dragula: quando uma tarefa é arrastada e solta
-    dragulaKanban.on('drop', (el, target, source) => {
-        const tarefaId = el.dataset.id;
-        const novoStatus = target.closest('.kanban-column').id;
-        const statusAnterior = source.closest('.kanban-column').id; // Captura o status de origem
-
-        // Preenche os campos do modal de tratativa e o exibe
-        document.getElementById('tratativa_tarefa_id').value = tarefaId;
-        document.getElementById('tratativa_status_anterior').value = statusAnterior; // Novo campo
-        document.getElementById('tratativa_status_novo').value = novoStatus;
-        document.getElementById('tratativa_texto').value = ''; // Limpa o campo de texto
-        new bootstrap.Modal(document.getElementById('modalTratativa')).show();
-    });
-
-    // Submissão do formulário de tratativa (mover tarefa)
-    document.getElementById("formTratativa").addEventListener("submit", async (e) => {
-        e.preventDefault(); // Impede o envio padrão do formulário
-
-        const id = document.getElementById('tratativa_tarefa_id').value;
-        const status_anterior = document.getElementById('tratativa_status_anterior').value; // Coleta status anterior
-        const status_novo = document.getElementById('tratativa_status_novo').value;
-        const texto = document.getElementById('tratativa_texto').value.trim();
-
-        if (texto === '') {
-            alert('Escreva uma tratativa para a mudança de status.');
-            return;
+    inicializarDragula() {
+        if (this.dragula) {
+            this.dragula.destroy();
         }
 
-        try {
-            const resposta = await fetch('mover_tarefa.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, status_anterior, status: status_novo, tratativa: texto }) // Envia status_anterior
-            });
+        this.dragula = dragula([
+            document.querySelector('#afazer .kanban-tarefas'),
+            document.querySelector('#progresso .kanban-tarefas'),
+            document.querySelector('#concluido .kanban-tarefas')
+        ], {
+            moves: (el, container, handle) => {
+                return !handle.classList.contains('kanban-actions') && 
+                       !handle.closest('.kanban-actions');
+            }
+        });
 
-            const resultado = await resposta.json();
-            if (resultado.sucesso) {
-                bootstrap.Modal.getInstance(document.getElementById('modalTratativa')).hide();
-                showToast('Tarefa movida com sucesso!', 'success'); // Exibe toast de sucesso
-                carregarTarefas(); // Recarrega as tarefas para refletir a mudança
+        this.dragula.on('drop', (el, target, source) => {
+            const tarefaId = el.dataset.id;
+            const novoStatus = target.closest('.kanban-column').id;
+            const statusAnterior = source.closest('.kanban-column').id;
+
+            if (novoStatus !== statusAnterior) {
+                this.abrirModalTratativa(tarefaId, statusAnterior, novoStatus);
+            }
+        });
+    }
+
+    configurarEventListeners() {
+        // Formulário de adicionar tarefa
+        const formAdicionar = document.getElementById('formAdicionarTarefa');
+        if (formAdicionar) {
+            formAdicionar.addEventListener('submit', (e) => this.adicionarTarefa(e));
+        }
+
+        // Event delegation para botões das tarefas
+        document.querySelectorAll('.kanban-tarefas').forEach(container => {
+            container.addEventListener('click', (event) => {
+                const target = event.target;
+                const taskId = target.dataset.id;
+                
+                if (target.classList.contains('btn-ver-tratativas')) {
+                    this.abrirModalTratativasHistorico(taskId);
+                } else if (target.classList.contains('btn-editar')) {
+                    const taskData = JSON.parse(target.dataset.task);
+                    this.abrirModalEditar(taskData);
+                } else if (target.classList.contains('btn-excluir')) {
+                    this.abrirModalExcluir(taskId);
+                }
+            });
+        });
+    }
+
+    async carregarUsuarios() {
+        try {
+            const resposta = await fetch('carregar_usuarios.php');
+            const dados = await resposta.json();
+
+            if (dados.sucesso) {
+                this.todosOsUsuarios = dados.usuarios;
+                this.popularDropdownUsuarios();
             } else {
-                showToast('Erro ao mover tarefa: ' + resultado.erro, 'danger'); // Exibe toast de erro
-                console.error('Erro ao mover tarefa:', resultado.erro);
-                carregarTarefas(); // Recarrega mesmo com erro para reverter o card ao estado original se o backend falhar
+                console.error('Erro ao carregar usuários:', dados.erro);
+                this.showToast('Erro ao carregar lista de usuários.', 'warning');
             }
         } catch (error) {
-            console.error('Erro na requisição de mover tarefa:', error);
-            showToast('Erro de conexão ao mover tarefa. Tente novamente.', 'danger'); // Exibe toast de erro
-            carregarTarefas(); // Recarrega em caso de erro de rede
+            console.error('Erro de conexão ao carregar usuários:', error);
+            this.showToast('Erro de conexão ao carregar lista de usuários.', 'warning');
         }
-    });
+    }
 
-    // Adicionar Tarefa
-    document.getElementById("formAdicionarTarefa").addEventListener("submit", async (e) => {
+    popularDropdownUsuarios() {
+        const selects = ['adicionar_usuario_atribuido', 'editar_usuario_atribuido'];
+        
+        selects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (select) {
+                select.innerHTML = '<option value="">Ninguém</option>';
+                this.todosOsUsuarios.forEach(usuario => {
+                    const option = document.createElement('option');
+                    option.value = usuario.id;
+                    option.textContent = usuario.nome;
+                    select.appendChild(option);
+                });
+            }
+        });
+    }
+
+    async carregarTarefas() {
+        try {
+            const resposta = await fetch('carregar_tarefas.php');
+            const dados = await resposta.json();
+
+            if (!dados.sucesso) {
+                this.showToast(dados.erro, 'danger');
+                return;
+            }
+
+            this.todasAsTarefas = dados.tarefas;
+            this.renderizarTarefas(this.todasAsTarefas);
+            this.atualizarContadores();
+
+        } catch (error) {
+            console.error('Erro ao carregar tarefas:', error);
+            this.showToast('Não foi possível carregar as tarefas. Verifique a conexão.', 'danger');
+        }
+    }
+
+    renderizarTarefas(tarefasObj) {
+        ['afazer', 'progresso', 'concluido'].forEach(status => {
+            const container = document.querySelector(`#${status} .kanban-tarefas`);
+            container.innerHTML = '';
+            
+            tarefasObj[status].forEach(tarefa => {
+                const div = document.createElement('div');
+                div.className = 'kanban-card';
+                div.dataset.id = tarefa.id;
+                div.innerHTML = this.criarCardTarefa(tarefa);
+                container.appendChild(div);
+            });
+        });
+    }
+
+    criarCardTarefa(tarefa) {
+        const prioridadeClass = tarefa.prioridade ? `prioridade-${tarefa.prioridade.toLowerCase()}` : '';
+        const dataEvento = tarefa.data_evento ? `<div class="small"><i class="fas fa-calendar"></i> ${this.formatarData(tarefa.data_evento)}</div>` : '';
+        const prioridade = tarefa.prioridade ? `<div class="small ${prioridadeClass}"><i class="fas fa-exclamation-circle"></i> ${tarefa.prioridade}</div>` : '';
+        const etiqueta = tarefa.etiqueta ? `<div class="etiqueta"><i class="fas fa-tag"></i> ${tarefa.etiqueta}</div>` : '';
+        const usuario = tarefa.nome_usuario_atribuido ? `<div class="small mt-2"><i class="fas fa-user"></i> <strong>Atribuído a:</strong> ${tarefa.nome_usuario_atribuido}</div>` : '';
+
+        return `
+            <div class="fw-bold">${this.escapeHtml(tarefa.titulo)}</div>
+            <div class="text-muted small">${this.escapeHtml(tarefa.descricao)}</div>
+            ${dataEvento}
+            ${prioridade}
+            ${etiqueta}
+            ${usuario}
+            <div class="kanban-actions">
+                <button class="btn-sm btn-info btn-ver-tratativas" title="Ver Tratativas" data-id="${tarefa.id}">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn-sm btn-secondary btn-editar" title="Editar Tarefa" data-task='${JSON.stringify(tarefa)}'>
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-sm btn-danger btn-excluir" title="Excluir Tarefa" data-id="${tarefa.id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    atualizarContadores() {
+        ['afazer', 'progresso', 'concluido'].forEach(status => {
+            const count = this.todasAsTarefas[status].length;
+            const badge = document.getElementById(`count-${status}`);
+            if (badge) {
+                badge.textContent = count;
+            }
+        });
+    }
+
+    filtrarTarefas() {
+        const termoBusca = document.getElementById('filtroBusca').value.toLowerCase();
+        const prioridadeFiltro = document.getElementById('filtroPrioridade').value;
+        
+        const tarefasFiltradas = {
+            afazer: [],
+            progresso: [],
+            concluido: []
+        };
+
+        ['afazer', 'progresso', 'concluido'].forEach(status => {
+            this.todasAsTarefas[status].forEach(tarefa => {
+                let incluir = true;
+
+                // Filtro de busca
+                if (termoBusca && !this.tarefaContemTermo(tarefa, termoBusca)) {
+                    incluir = false;
+                }
+
+                // Filtro de prioridade
+                if (prioridadeFiltro && tarefa.prioridade !== prioridadeFiltro) {
+                    incluir = false;
+                }
+
+                if (incluir) {
+                    tarefasFiltradas[status].push(tarefa);
+                }
+            });
+        });
+
+        this.renderizarTarefas(tarefasFiltradas);
+    }
+
+    tarefaContemTermo(tarefa, termo) {
+        return tarefa.titulo.toLowerCase().includes(termo) ||
+               tarefa.descricao.toLowerCase().includes(termo) ||
+               (tarefa.nome_usuario_atribuido && tarefa.nome_usuario_atribuido.toLowerCase().includes(termo)) ||
+               (tarefa.etiqueta && tarefa.etiqueta.toLowerCase().includes(termo));
+    }
+
+    limparFiltro() {
+        document.getElementById('filtroBusca').value = '';
+        document.getElementById('filtroPrioridade').value = '';
+        this.renderizarTarefas(this.todasAsTarefas);
+    }
+
+    async adicionarTarefa(e) {
         e.preventDefault();
-        const titulo = document.getElementById('adicionar_titulo').value.trim();
-        const descricao = document.getElementById('adicionar_descricao').value.trim();
-        const data_evento = document.getElementById('adicionar_data').value;
-        const prioridade = document.getElementById('adicionar_prioridade').value;
-        const etiqueta = document.getElementById('adicionar_etiqueta').value.trim();
-        const usuario_atribuido = document.getElementById('adicionar_usuario_atribuido').value; // NOVO: Coleta o ID do usuário atribuído
+        
+        const dados = {
+            titulo: document.getElementById('adicionar_titulo').value.trim(),
+            descricao: document.getElementById('adicionar_descricao').value.trim(),
+            data_evento: document.getElementById('adicionar_data').value,
+            prioridade: document.getElementById('adicionar_prioridade').value,
+            etiqueta: document.getElementById('adicionar_etiqueta').value.trim(),
+            usuario_atribuido: document.getElementById('adicionar_usuario_atribuido').value
+        };
 
-        if (titulo === '') {
-            alert('O título da tarefa é obrigatório.');
+        if (!dados.titulo) {
+            this.showToast('O título da tarefa é obrigatório.', 'warning');
             return;
         }
 
@@ -154,342 +555,113 @@ document.addEventListener("DOMContentLoaded", async () => { // Adicionado 'async
             const resposta = await fetch('adicionar_tarefa.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                // NOVO: Inclui usuario_atribuido no body
-                body: JSON.stringify({ titulo, descricao, data_evento, prioridade, etiqueta, usuario_atribuido })
+                body: JSON.stringify(dados)
             });
 
             const resultado = await resposta.json();
             if (resultado.sucesso) {
                 bootstrap.Modal.getInstance(document.getElementById('modalAdicionarTarefa')).hide();
-                showToast('Tarefa adicionada com sucesso!', 'success'); // Exibe toast
-                document.getElementById("formAdicionarTarefa").reset(); // Limpa o formulário
-                carregarTarefas();
+                this.showToast('Tarefa adicionada com sucesso!', 'success');
+                document.getElementById('formAdicionarTarefa').reset();
+                await this.carregarTarefas();
             } else {
-                showToast('Erro ao adicionar tarefa: ' + resultado.erro, 'danger'); // Exibe toast
-                console.error('Erro ao adicionar tarefa:', resultado.erro);
+                this.showToast('Erro ao adicionar tarefa: ' + resultado.erro, 'danger');
             }
         } catch (error) {
-            console.error('Erro na requisição de adicionar tarefa:', error);
-            showToast('Erro de conexão ao adicionar tarefa. Tente novamente.', 'danger'); // Exibe toast
+            console.error('Erro na requisição:', error);
+            this.showToast('Erro de conexão. Tente novamente.', 'danger');
         }
-    });
-
-    // Editar Tarefa
-    document.getElementById("formEditarTarefa").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('editar_id').value;
-        const titulo = document.getElementById('editar_titulo').value.trim();
-        const descricao = document.getElementById('editar_descricao').value.trim();
-        const data_evento = document.getElementById('editar_data').value;
-        const prioridade = document.getElementById('editar_prioridade').value;
-        const etiqueta = document.getElementById('editar_etiqueta').value.trim();
-        const usuario_atribuido = document.getElementById('editar_usuario_atribuido').value; // NOVO: Coleta o ID do usuário atribuído
-
-        if (titulo === '') {
-            alert('O título da tarefa é obrigatório.');
-            return;
-        }
-
-        try {
-            const resposta = await fetch('editar_tarefa.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                // NOVO: Inclui usuario_atribuido no body
-                body: JSON.stringify({ id, titulo, descricao, data_evento, prioridade, etiqueta, usuario_atribuido })
-            });
-
-            const resultado = await resposta.json();
-            if (resultado.sucesso) {
-                bootstrap.Modal.getInstance(document.getElementById('modalEditarTarefa')).hide();
-                showToast('Tarefa atualizada com sucesso!', 'success'); // Exibe toast
-                carregarTarefas();
-            } else {
-                showToast('Erro ao atualizar tarefa: ' + resultado.erro, 'danger'); // Exibe toast
-                console.error('Erro ao atualizar tarefa:', resultado.erro);
-            }
-        } catch (error) {
-            console.error('Erro na requisição de editar tarefa:', error);
-            showToast('Erro de conexão ao editar tarefa. Tente novamente.', 'danger'); // Exibe toast
-        }
-    });
-
-    // Excluir Tarefa
-    document.getElementById("formExcluirTarefa").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('excluir_id').value;
-
-        try {
-            const resposta = await fetch('excluir_tarefa.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            });
-
-            const resultado = await resposta.json();
-            if (resultado.sucesso) {
-                bootstrap.Modal.getInstance(document.getElementById('modalExcluir')).hide();
-                showToast('Tarefa excluída com sucesso!', 'success'); // Exibe toast
-                carregarTarefas();
-            } else {
-                showToast('Erro ao excluir tarefa: ' + resultado.erro, 'danger'); // Exibe toast
-                console.error('Erro ao excluir tarefa:', resultado.erro);
-            }
-        } catch (error) {
-            console.error('Erro na requisição de excluir tarefa:', error);
-            showToast('Erro de conexão ao excluir tarefa. Tente novamente.', 'danger'); // Exibe toast
-        }
-    });
-}); // Fim do DOMContentLoaded
-
-/**
- * Função para carregar usuários e popular os dropdowns de atribuição.
- */
-async function carregarUsuarios() {
-    try {
-        const resposta = await fetch('carregar_usuarios.php'); // Ou 'get_usuarios.php' se preferir este nome
-        const dados = await resposta.json();
-
-        if (dados.sucesso) {
-            todosOsUsuarios = dados.usuarios;
-            const selectAdd = document.getElementById('adicionar_usuario_atribuido');
-            const selectEdit = document.getElementById('editar_usuario_atribuido');
-
-            // Limpa as opções existentes (exceto a "Ninguém")
-            selectAdd.innerHTML = '<option value="">Ninguém</option>';
-            selectEdit.innerHTML = '<option value="">Ninguém</option>';
-
-            // Adiciona os usuários aos dropdowns
-            todosOsUsuarios.forEach(usuario => {
-                const optionAdd = document.createElement('option');
-                optionAdd.value = usuario.id;
-                optionAdd.textContent = usuario.nome;
-                selectAdd.appendChild(optionAdd);
-
-                const optionEdit = document.createElement('option');
-                optionEdit.value = usuario.id;
-                optionEdit.textContent = usuario.nome;
-                selectEdit.appendChild(optionEdit);
-            });
-        } else {
-            console.error('Erro ao carregar usuários:', dados.erro);
-            showToast('Erro ao carregar lista de usuários.', 'warning');
-        }
-    } catch (error) {
-        console.error('Erro de conexão ao carregar usuários:', error);
-        showToast('Erro de conexão ao carregar lista de usuários.', 'warning');
     }
-}
 
-/**
- * Função para carregar e exibir as tarefas no Kanban.
- * @returns {Promise<void>}
- */
-async function carregarTarefas() {
-    try {
-        const resposta = await fetch('carregar_tarefas.php');
-        const dados = await resposta.json();
-
-        if (!dados.sucesso) {
-            showToast(dados.erro, 'danger'); // Exibe toast de erro
-            return;
-        }
-
-        // Armazena as tarefas carregadas globalmente para a função de filtro
-        todasAsTarefas = dados.tarefas;
-
-        // Renderiza as tarefas (inicialmente sem filtro)
-        renderizarTarefas(todasAsTarefas);
-
-    } catch (error) {
-        console.error('Erro ao carregar tarefas:', error);
-        showToast('Não foi possível carregar as tarefas. Verifique a conexão.', 'danger'); // Exibe toast de erro
+    // Métodos utilitários
+    formatarData(dataString) {
+        if (!dataString) return '';
+        const [ano, mes, dia] = dataString.split('-');
+        return `${dia}/${mes}/${ano}`;
     }
-}
 
-/**
- * Renderiza as tarefas nas colunas do Kanban com base nos dados fornecidos.
- * @param {object} tarefasObj - Objeto contendo as tarefas organizadas por status.
- */
-function renderizarTarefas(tarefasObj) {
-    ['afazer', 'progresso', 'concluido'].forEach(status => {
-        const container = document.querySelector(`#${status} .kanban-tarefas`);
-        container.innerHTML = ''; // Limpa o container antes de adicionar as tarefas
-        tarefasObj[status].forEach(tarefa => {
-            const div = document.createElement('div');
-            div.className = 'kanban-card';
-            div.dataset.id = tarefa.id;
-            div.innerHTML = `
-                <div class="fw-bold">${tarefa.titulo}</div>
-                <div class="text-muted small">${tarefa.descricao}</div>
-                ${tarefa.data_evento ? `<div class="small">Data: ${formatarData(tarefa.data_evento)}</div>` : ''}
-                ${tarefa.prioridade ? `<div class="small prioridade-${tarefa.prioridade.toLowerCase()}">Prioridade: ${tarefa.prioridade}</div>` : ''}
-                ${tarefa.etiqueta ? `<div class="etiqueta">${tarefa.etiqueta}</div>` : ''}
-                ${tarefa.nome_usuario_atribuido ? `<div class="small mt-2"><strong>Atribuído a:</strong> ${tarefa.nome_usuario_atribuido}</div>` : ''} <div class="kanban-actions">
-                    <button class="btn-sm btn-info btn-ver-tratativas" title="Ver Tratativas" data-id="${tarefa.id}">👁️</button> <button class="btn-sm btn-secondary btn-editar" title="Editar Tarefa" data-task='${JSON.stringify(tarefa)}'>✏️</button> <button class="btn-sm btn-danger btn-excluir" title="Excluir Tarefa" data-id="${tarefa.id}">🗑️</button> </div>
-            `;
-            container.appendChild(div);
+    formatarDataHora(dateTimeString) {
+        if (!dateTimeString) return '';
+        const date = new Date(dateTimeString);
+        return date.toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         });
-    });
-
-    // NOVO: Adiciona event listeners usando event delegation para os botões
-    document.querySelectorAll('.kanban-tarefas').forEach(container => {
-        container.addEventListener('click', (event) => {
-            if (event.target.classList.contains('btn-ver-tratativas')) {
-                const taskId = event.target.dataset.id;
-                abrirModalTratativasHistorico(taskId);
-            } else if (event.target.classList.contains('btn-editar')) {
-                const taskData = JSON.parse(event.target.dataset.task);
-                abrirModalEditar(taskData);
-            } else if (event.target.classList.contains('btn-excluir')) {
-                const taskId = event.target.dataset.id;
-                abrirModalExcluir(taskId);
-            }
-        });
-    });
-}
-
-/**
- * Filtra as tarefas exibidas no Kanban com base no texto de busca.
- */
-function filtrarTarefas() {
-    const termoBusca = document.getElementById('filtroBusca').value.toLowerCase();
-    const tarefasFiltradas = {
-        afazer: [],
-        progresso: [],
-        concluido: []
-    };
-
-    ['afazer', 'progresso', 'concluido'].forEach(status => {
-        todasAsTarefas[status].forEach(tarefa => {
-            if (tarefa.titulo.toLowerCase().includes(termoBusca) ||
-                tarefa.descricao.toLowerCase().includes(termoBusca) ||
-                (tarefa.nome_usuario_atribuido && tarefa.nome_usuario_atribuido.toLowerCase().includes(termoBusca)) || // NOVO: Filtra por nome do usuário
-                (tarefa.etiqueta && tarefa.etiqueta.toLowerCase().includes(termoBusca))
-            ) {
-                tarefasFiltradas[status].push(tarefa);
-            }
-        });
-    });
-    renderizarTarefas(tarefasFiltradas);
-}
-
-// Funções para abrir modais
-function abrirModalEditar(tarefa) {
-    document.getElementById('editar_id').value = tarefa.id;
-    document.getElementById('editar_titulo').value = tarefa.titulo;
-    document.getElementById('editar_descricao').value = tarefa.descricao;
-    document.getElementById('editar_data').value = tarefa.data_evento || '';
-    document.getElementById('editar_prioridade').value = tarefa.prioridade || '';
-    document.getElementById('editar_etiqueta').value = tarefa.etiqueta || '';
-
-    // NOVO: Preenche o dropdown de usuário atribuído
-    const selectUsuario = document.getElementById('editar_usuario_atribuido');
-    selectUsuario.value = tarefa.usuario_atribuido_id || ''; // Define o valor selecionado
-
-    new bootstrap.Modal(document.getElementById('modalEditarTarefa')).show();
-}
-
-function abrirModalExcluir(id) {
-    document.getElementById('excluir_id').value = id;
-    new bootstrap.Modal(document.getElementById('modalExcluir')).show();
-}
-
-// Nova função: Abrir modal de histórico de tratativas
-async function abrirModalTratativasHistorico(tarefaId) {
-    try {
-        const resposta = await fetch(`carregar_tratativas.php?tarefa_id=${tarefaId}`);
-        const dados = await resposta.json();
-
-        const modalTratativasBody = document.getElementById('modalTratativasBody');
-        modalTratativasBody.innerHTML = ''; // Limpa o conteúdo anterior
-
-        if (dados.sucesso && dados.tratativas.length > 0) {
-            dados.tratativas.forEach(tratativa => {
-                const div = document.createElement('div');
-                div.className = 'tratativa-item';
-                div.innerHTML = `
-                    <p><strong>De:</strong> ${tratativa.status_anterior} <strong>Para:</strong> ${tratativa.status_novo}</p>
-                    <p>${tratativa.texto}</p>
-                    <p class="text-muted small">Por ${tratativa.nome_usuario} em ${formatarDataHora(tratativa.data_registro)}</p>
-                `;
-                modalTratativasBody.appendChild(div);
-            });
-        } else if (dados.sucesso && dados.tratativas.length === 0) {
-            modalTratativasBody.innerHTML = '<p class="text-center text-muted">Nenhuma tratativa registrada para esta tarefa.</p>';
-        } else {
-            modalTratativasBody.innerHTML = `<p class="text-danger text-center">Erro ao carregar tratativas: ${dados.erro}</p>`;
-        }
-        // Garante que o modal seja instanciado e exibido
-        const historicoModal = new bootstrap.Modal(document.getElementById('modalHistoricoTratativas'));
-        historicoModal.show();
-    } catch (error) {
-        console.error('Erro ao carregar tratativas:', error);
-        showToast('Erro de conexão ao carregar histórico de tratativas.', 'danger');
     }
-}
 
-/**
- * Formata uma data no formato YYYY-MM-DD para DD/MM/YYYY.
- * @param {string} dataString - A string da data no formato YYYY-MM-DD.
- * @returns {string} A data formatada.
- */
-function formatarData(dataString) {
-    if (!dataString) return '';
-    const [ano, mes, dia] = dataString.split('-');
-    return `${dia}/${mes}/${ano}`;
-}
-
-/**
- * Formata uma data e hora (timestamp) para um formato legível.
- * @param {string} dateTimeString - A string do timestamp.
- * @returns {string} A data e hora formatada.
- */
-function formatarDataHora(dateTimeString) {
-    if (!dateTimeString) return '';
-    const date = new Date(dateTimeString);
-    return date.toLocaleString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-/**
- * Exibe um toast de notificação.
- * @param {string} message - A mensagem a ser exibida.
- * @param {string} type - O tipo de toast (e.g., 'success', 'danger', 'warning', 'info').
- */
-function showToast(message, type = 'info') {
-    const toastContainer = document.querySelector('.toast-container') || (() => {
+    escapeHtml(text) {
         const div = document.createElement('div');
-        div.className = 'toast-container';
-        document.body.appendChild(div);
-        return div;
-    })();
+        div.textContent = text;
+        return div.innerHTML;
+    }
 
-    const toast = document.createElement('div');
-    toast.className = `toast align-items-center text-white bg-${type} border-0 fade show`;
-    toast.setAttribute('role', 'alert');
-    toast.setAttribute('aria-live', 'assertive');
-    toast.setAttribute('aria-atomic', 'true');
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">${message}</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    `;
+    showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type} border-0 fade show`;
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
 
-    toastContainer.appendChild(toast);
+        toastContainer.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast, { delay: 4000 });
+        bsToast.show();
 
-    const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
-    bsToast.show();
+        toast.addEventListener('hidden.bs.toast', () => toast.remove());
+    }
 
-    // Remove o toast do DOM após o tempo de exibição para evitar acúmulo
-    toast.addEventListener('hidden.bs.toast', () => {
-        toast.remove();
-    });
+    // Métodos de modal (implementar conforme necessário)
+    abrirModalTratativa(tarefaId, statusAnterior, novoStatus) {
+        // Implementar modal de tratativa
+        console.log('Abrir modal tratativa:', tarefaId, statusAnterior, novoStatus);
+    }
+
+    abrirModalTratativasHistorico(tarefaId) {
+        // Implementar modal de histórico
+        console.log('Abrir histórico:', tarefaId);
+    }
+
+    abrirModalEditar(tarefa) {
+        // Implementar modal de edição
+        console.log('Editar tarefa:', tarefa);
+    }
+
+    abrirModalExcluir(tarefaId) {
+        // Implementar modal de exclusão
+        console.log('Excluir tarefa:', tarefaId);
+    }
+}
+
+// Funções globais para compatibilidade
+let kanbanManager;
+
+document.addEventListener('DOMContentLoaded', () => {
+    kanbanManager = new KanbanManager();
+});
+
+function filtrarTarefas() {
+    if (kanbanManager) {
+        kanbanManager.filtrarTarefas();
+    }
+}
+
+function limparFiltro() {
+    if (kanbanManager) {
+        kanbanManager.limparFiltro();
+    }
+}
+
+function carregarTarefas() {
+    if (kanbanManager) {
+        kanbanManager.carregarTarefas();
+    }
 }
 </script>
 

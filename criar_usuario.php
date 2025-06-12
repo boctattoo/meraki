@@ -1,14 +1,27 @@
 <?php
-// criar_usuario.php - Script para criar um usuário administrador
+session_start();
+header('Content-Type: application/json');
+
+if (!isset($_SESSION['usuario_id'])) {
+    echo json_encode(['sucesso' => false, 'erro' => 'Usuário não logado']);
+    exit();
+}
+
 require 'conexao.php';
 
-$usuario = 'admin';
-$senha = password_hash('admin123', PASSWORD_DEFAULT); // Altere a senha conforme necessidade
-
 try {
-    $stmt = $pdo->prepare("INSERT INTO usuarios (usuario, senha) VALUES (:usuario, :senha)");
-    $stmt->execute(['usuario' => $usuario, 'senha' => $senha]);
-    echo "Usuário criado com sucesso!";
-} catch (PDOException $e) {
-    echo "Erro ao criar usuário: " . $e->getMessage();
+    $stmt = $pdo->query("SELECT id, nome FROM usuarios ORDER BY nome");
+    $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    echo json_encode([
+        'sucesso' => true,
+        'usuarios' => $usuarios
+    ]);
+    
+} catch (Exception $e) {
+    echo json_encode([
+        'sucesso' => false,
+        'erro' => 'Erro ao carregar usuários: ' . $e->getMessage()
+    ]);
 }
+?>

@@ -17,6 +17,7 @@ $filtro_vagas = $_GET['vagas'] ?? '';
 $filtro_tipo = $_GET['tipo'] ?? '';
 
 try {
+    // Buscar turmas e dados básicos
     $sql = "
     SELECT
         t.id,
@@ -34,8 +35,22 @@ try {
     LEFT JOIN tipos_turma tt ON t.tipo_id = tt.id
     GROUP BY t.id
     ";
-
     $todas_turmas = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+
+    // Dia da semana atual
+    $dias_semana = [
+        'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
+        'Quinta-feira', 'Sexta-feira', 'Sábado'
+    ];
+    $dia_hoje_nome = $dias_semana[date('w')];
+    $data_hoje = date('Y-m-d');
+
+    // Buscar turmas com presença registrada hoje
+    $presencasHoje = $pdo->query("
+        SELECT DISTINCT turma_id
+        FROM presencas
+        WHERE data = '$data_hoje'
+    ")->fetchAll(PDO::FETCH_COLUMN);
 
     $turmas = [];
     $total_turmas = $total_alunos = $total_vagas = $total_disponiveis = 0;
@@ -46,6 +61,13 @@ try {
         $disponiveis = $vagas - $alunos;
         $t['disponiveis'] = $disponiveis;
 
+        // É o dia da semana da turma?
+        $t['hoje'] = ($t['dia'] === $dia_hoje_nome);
+
+        // Já foi registrada presença hoje?
+        $t['presenca_registrada'] = in_array($t['id'], $presencasHoje);
+
+        // Aplicar filtros visuais
         if (
             ($filtro_dia && $t['dia'] !== $filtro_dia) ||
             ($filtro_instrutor && $t['instrutor'] !== $filtro_instrutor) ||
@@ -67,184 +89,244 @@ try {
     $total_turmas = $total_alunos = $total_vagas = $total_disponiveis = 0;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mapa de Turmas</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Título da página -->
+  <title>Controle de Presença | Mapa de Turmas</title>
+
+  <!-- Favicon da aplicação -->
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+
+  <!-- CSS Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+  <!-- Estilos personalizados -->
+  <link rel="stylesheet" href="style.css"> <!-- Remova se não estiver usando -->
+
+  <!-- jQuery (se necessário) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+
+  <!-- JS do Bootstrap com Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+
+  <!-- Scripts personalizados -->
+  <script src="scripts.js" defer></script> <!-- Remova se não existir -->
 </head>
+
+
 <body class="bg-light">
 <?php include 'nav.php'; ?>
-<div class="container mt-4">
- <!-- Resumo com animação, ícones e tooltips -->
-<div class="row text-center mb-4">
-  <div class="col-md-3">
-    <div class="card border-success">
-      <div class="card-body">
-        <h6 data-bs-toggle="tooltip" title="Total de turmas ativas no sistema">
-          <i class="bi bi-collection-play text-success"></i> Total de Turmas
-        </h6>
-        <h4 class="text-success fw-bold" id="contador-turmas">0</h4>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card border-primary">
-      <div class="card-body">
-        <h6 data-bs-toggle="tooltip" title="Soma dos alunos matriculados em todas as turmas">
-          <i class="bi bi-person-fill text-primary"></i> Total de Alunos
-        </h6>
-        <h4 class="text-primary fw-bold" id="contador-alunos">0</h4>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card border-warning">
-      <div class="card-body">
-        <h6 data-bs-toggle="tooltip" title="Número total de vagas disponíveis e ocupadas">
-          <i class="bi bi-grid-3x3-gap-fill text-warning"></i> Total de Vagas
-        </h6>
-        <h4 class="text-warning fw-bold" id="contador-vagas">0</h4>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card border-danger">
-      <div class="card-body">
-        <h6 data-bs-toggle="tooltip" title="Soma das vagas ainda disponíveis nas turmas">
-          <i class="bi bi-patch-check-fill text-danger"></i> Vagas Disponíveis
-        </h6>
-        <h4 class="text-danger fw-bold" id="contador-disponiveis">0</h4>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Legenda visual de status -->
+<main class="container mt-4">
+
+  <!-- Resumo Geral das Turmas -->
+  <section class="row text-center mb-4" aria-label="Resumo geral das turmas">
+
+    <?php
+    $resumos = [
+      [
+        'id' => 'contador-turmas',
+        'titulo' => 'Total de Turmas',
+        'icone' => 'bi-collection-play',
+        'cor' => 'success',
+        'tooltip' => 'Total de turmas ativas no sistema'
+      ],
+      [
+        'id' => 'contador-alunos',
+        'titulo' => 'Total de Alunos',
+        'icone' => 'bi-person-fill',
+        'cor' => 'primary',
+        'tooltip' => 'Soma dos alunos matriculados em todas as turmas'
+      ],
+      [
+        'id' => 'contador-vagas',
+        'titulo' => 'Total de Vagas',
+        'icone' => 'bi-grid-3x3-gap-fill',
+        'cor' => 'warning',
+        'tooltip' => 'Número total de vagas disponíveis e ocupadas'
+      ],
+      [
+        'id' => 'contador-disponiveis',
+        'titulo' => 'Vagas Disponíveis',
+        'icone' => 'bi-patch-check-fill',
+        'cor' => 'danger',
+        'tooltip' => 'Soma das vagas ainda disponíveis nas turmas'
+      ]
+    ];
+
+    foreach ($resumos as $r):
+    ?>
+      <div class="col-md-3">
+        <div class="card border-<?= $r['cor'] ?>">
+          <div class="card-body">
+            <h6 data-bs-toggle="tooltip" title="<?= $r['tooltip'] ?>">
+              <i class="bi <?= $r['icone'] ?> text-<?= $r['cor'] ?>"></i> <?= $r['titulo'] ?>
+            </h6>
+            <h4 class="text-<?= $r['cor'] ?> fw-bold" id="<?= $r['id'] ?>">0</h4>
+          </div>
+        </div>
+      </div>
+    <?php endforeach; ?>
+
+  </section>
+
+</main>
+
+
+
+<!-- 📅 Data Atual do Registro de Presença -->
 <div class="row justify-content-center mb-4">
   <div class="col-auto">
-    <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Vagas disponíveis</span>
-  </div>
-  <div class="col-auto">
-    <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle-fill"></i> Poucas vagas</span>
-  </div>
-  <div class="col-auto">
-    <span class="badge bg-danger"><i class="bi bi-x-circle-fill"></i> Turma lotada</span>
+    <div class="alert alert-info d-flex align-items-center shadow-sm" role="alert" aria-label="Data de registro de presença">
+      <i class="bi bi-calendar-check me-2 fs-5"></i>
+      <strong>Registrando presença para: <?= date('d/m/Y') ?></strong>
+    </div>
   </div>
 </div>
 
-<script>
-function animarContador(id, valorFinal, duracao = 1500) {
-  const elemento = document.getElementById(id);
-  if (!elemento) return;
-  const inicio = 0;
-  const incremento = valorFinal / (duracao / 20);
-  let atual = inicio;
+<!-- 🎯 Legenda Visual para Status das Turmas -->
+<div class="row justify-content-center mb-4" aria-label="Legenda de status das turmas">
+  <div class="col-auto">
+    <span class="badge bg-success px-3 py-2 shadow-sm">
+      <i class="bi bi-check-circle-fill me-1"></i> Vagas disponíveis
+    </span>
+  </div>
+  <div class="col-auto">
+    <span class="badge bg-warning text-dark px-3 py-2 shadow-sm">
+      <i class="bi bi-exclamation-triangle-fill me-1"></i> Poucas vagas
+    </span>
+  </div>
+  <div class="col-auto">
+    <span class="badge bg-danger px-3 py-2 shadow-sm">
+      <i class="bi bi-x-circle-fill me-1"></i> Turma lotada
+    </span>
+  </div>
+</div>
 
-  const animacao = setInterval(() => {
+
+<script>
+// Função para animar contadores numéricos com suavidade
+function animarContador(id, valorFinal, duracao = 1500) {
+  const el = document.getElementById(id);
+  if (!el || isNaN(valorFinal)) return;
+
+  let atual = 0;
+  const frames = Math.ceil(duracao / 20);
+  const incremento = valorFinal / frames;
+
+  const intervalo = setInterval(() => {
     atual += incremento;
     if (atual >= valorFinal) {
       atual = valorFinal;
-      clearInterval(animacao);
+      clearInterval(intervalo);
     }
-    elemento.textContent = Math.floor(atual);
+    el.textContent = Math.floor(atual);
   }, 20);
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  animarContador("contador-turmas", <?= $total_turmas ?>);
-  animarContador("contador-alunos", <?= $total_alunos ?>);
-  animarContador("contador-vagas", <?= $total_vagas ?>);
-  animarContador("contador-disponiveis", <?= $total_disponiveis ?>);
+document.addEventListener("DOMContentLoaded", () => {
+  // Animação dos contadores principais
+  animarContador("contador-turmas", <?= (int)$total_turmas ?>);
+  animarContador("contador-alunos", <?= (int)$total_alunos ?>);
+  animarContador("contador-vagas", <?= (int)$total_vagas ?>);
+  animarContador("contador-disponiveis", <?= (int)$total_disponiveis ?>);
 
-  // Inicializa tooltips do Bootstrap
-  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-  tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-    new bootstrap.Tooltip(tooltipTriggerEl);
+  // Inicialização dos tooltips Bootstrap 5
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+    new bootstrap.Tooltip(el);
   });
 });
 </script>
 
+
 <?php if (count($turmas) > 0): ?>
-  <div class="mb-3 text-end text-muted small">
-    <span class="badge bg-secondary">
+  <div class="mb-3 text-end small text-muted" aria-label="Total de turmas encontradas">
+    <span class="badge bg-secondary px-3 py-2 shadow-sm">
       <?= count($turmas) ?> turma(s) encontrada(s) com os filtros aplicados
     </span>
   </div>
 <?php else: ?>
-  <div class="alert alert-warning text-center" role="alert">
-    Nenhuma turma encontrada com os filtros aplicados.
+  <div class="alert alert-warning text-center shadow-sm" role="alert" aria-live="polite">
+    <i class="bi bi-info-circle me-2"></i> Nenhuma turma encontrada com os filtros aplicados.
   </div>
 <?php endif; ?>
 
-  <!-- Filtros -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white"><h5 class="mb-0">Filtros</h5></div>
-    <div class="card-body">
-<?php if (count($turmas) > 0): ?>
-  <div class="mb-3 text-end text-muted small">
-    <span class="badge bg-secondary"><?= count($turmas) ?> turma(s) encontrada(s)</span>
-  </div>
-<?php else: ?>
-  <div class="alert alert-warning text-center" role="alert">
-    Nenhuma turma encontrada com os filtros aplicados.
-  </div>
-<?php endif; ?>
 
-<form class="row row-cols-lg-auto g-3 align-items-center mb-4" method="GET" id="filtro-form">
-  <div class="col-12">
-    <label class="form-label">Dia da Semana</label>
-    <select name="dia" class="form-select" onchange="document.getElementById('filtro-form').submit()">
-      <option value="">Todos</option>
-      <?php
-      $dias = $pdo->query("SELECT nome FROM dias_semana")->fetchAll(PDO::FETCH_COLUMN);
-      foreach ($dias as $dia): ?>
-        <option value="<?= $dia ?>" <?= $filtro_dia === $dia ? 'selected' : '' ?>><?= $dia ?></option>
-      <?php endforeach; ?>
-    </select>
+ <!-- 🎯 Filtros de busca -->
+<section class="card shadow-sm mb-4" aria-label="Filtros de turmas">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0"><i class="bi bi-funnel-fill me-2"></i>Filtros</h5>
   </div>
-  <div class="col-12">
-    <label class="form-label">Instrutor</label>
-    <select name="instrutor" class="form-select" onchange="document.getElementById('filtro-form').submit()">
-      <option value="">Todos</option>
-      <?php
-      $instrutores = $pdo->query("SELECT nome FROM instrutores")->fetchAll(PDO::FETCH_COLUMN);
-      foreach ($instrutores as $inst): ?>
-        <option value="<?= $inst ?>" <?= $filtro_instrutor === $inst ? 'selected' : '' ?>><?= $inst ?></option>
-      <?php endforeach; ?>
-    </select>
-  </div>
-  <div class="col-12">
-    <label class="form-label">Tipo</label>
-    <select name="tipo" class="form-select" onchange="document.getElementById('filtro-form').submit()">
-      <option value="">Todos</option>
-      <option value="DINÂMICO" <?= $filtro_tipo === 'DINÂMICO' ? 'selected' : '' ?>>DINÂMICO</option>
-      <option value="MULTIMÍDIA" <?= $filtro_tipo === 'MULTIMÍDIA' ? 'selected' : '' ?>>MULTIMÍDIA</option>
-    </select>
-  </div>
-  <div class="col-12">
-    <label class="form-label">Vagas</label>
-    <select name="vagas" class="form-select" onchange="document.getElementById('filtro-form').submit()">
-      <option value="">Todas</option>
-      <option value="disponivel" <?= $filtro_vagas === 'disponivel' ? 'selected' : '' ?>>Com vagas</option>
-      <option value="lotada" <?= $filtro_vagas === 'lotada' ? 'selected' : '' ?>>Sem vagas</option>
-    </select>
-  </div>
-  <div class="col-12 align-self-end">
-    <a href="<?= strtok($_SERVER["REQUEST_URI"], '?') ?>" class="btn btn-outline-secondary">Limpar Filtros</a>
-  </div>
-</form>
-    </div>
-  </div>
+  <div class="card-body">
+    <form class="row row-cols-1 row-cols-md-auto g-3 align-items-end" method="GET" id="filtro-form">
 
-<!-- Cards -->
+      <!-- Dia da Semana -->
+      <div class="col">
+        <label for="filtro-dia" class="form-label">Dia da Semana</label>
+        <select name="dia" id="filtro-dia" class="form-select" onchange="document.getElementById('filtro-form').submit()">
+          <option value="">Todos</option>
+          <?php
+          $dias = $pdo->query("SELECT nome FROM dias_semana")->fetchAll(PDO::FETCH_COLUMN);
+          foreach ($dias as $dia): ?>
+            <option value="<?= $dia ?>" <?= $filtro_dia === $dia ? 'selected' : '' ?>><?= $dia ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <!-- Instrutor -->
+      <div class="col">
+        <label for="filtro-instrutor" class="form-label">Instrutor</label>
+        <select name="instrutor" id="filtro-instrutor" class="form-select" onchange="document.getElementById('filtro-form').submit()">
+          <option value="">Todos</option>
+          <?php
+          $instrutores = $pdo->query("SELECT nome FROM instrutores")->fetchAll(PDO::FETCH_COLUMN);
+          foreach ($instrutores as $inst): ?>
+            <option value="<?= $inst ?>" <?= $filtro_instrutor === $inst ? 'selected' : '' ?>><?= $inst ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <!-- Tipo de Turma -->
+      <div class="col">
+        <label for="filtro-tipo" class="form-label">Tipo</label>
+        <select name="tipo" id="filtro-tipo" class="form-select" onchange="document.getElementById('filtro-form').submit()">
+          <option value="">Todos</option>
+          <option value="DINÂMICO" <?= $filtro_tipo === 'DINÂMICO' ? 'selected' : '' ?>>DINÂMICO</option>
+          <option value="MULTIMÍDIA" <?= $filtro_tipo === 'MULTIMÍDIA' ? 'selected' : '' ?>>MULTIMÍDIA</option>
+        </select>
+      </div>
+
+      <!-- Status de Vagas -->
+      <div class="col">
+        <label for="filtro-vagas" class="form-label">Vagas</label>
+        <select name="vagas" id="filtro-vagas" class="form-select" onchange="document.getElementById('filtro-form').submit()">
+          <option value="">Todas</option>
+          <option value="disponivel" <?= $filtro_vagas === 'disponivel' ? 'selected' : '' ?>>Com vagas</option>
+          <option value="lotada" <?= $filtro_vagas === 'lotada' ? 'selected' : '' ?>>Sem vagas</option>
+        </select>
+      </div>
+
+      <!-- Botão de limpar -->
+      <div class="col">
+        <button type="submit" class="btn btn-outline-secondary w-100" name="limpar" value="1"
+          onclick="window.location.href='<?= strtok($_SERVER['REQUEST_URI'], '?') ?>'; return false;">
+          <i class="bi bi-x-circle"></i> Limpar Filtros
+        </button>
+      </div>
+
+    </form>
+  </div>
+</section>
+
+
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="cards-container">
   <?php foreach ($turmas as $t): ?>
     <?php
@@ -258,9 +340,16 @@ document.addEventListener("DOMContentLoaded", function () {
     <div class="col card-entry">
       <div class="card h-100 animate-entry border-3 border-<?= $cardClass ?>">
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title fw-bold text-white px-3 py-2 rounded bg-<?= $cardClass ?>">
+
+          <!-- Cabeçalho com botão de expandir -->
+          <h5 class="card-title fw-bold text-white px-3 py-2 rounded bg-<?= $cardClass ?> d-flex justify-content-between align-items-center">
             Turma: <?= htmlspecialchars($t['turma_nome']) ?>
+            <button type="button" class="btn btn-sm btn-light toggle-presenca" aria-expanded="false" title="Expandir/Recolher presença">
+              <i class="bi bi-plus-lg" aria-hidden="true"></i>
+            </button>
           </h5>
+
+          <!-- Informações da turma -->
           <p class="card-text mt-3 mb-1"><strong class="text-secondary">Instrutor:</strong> <?= $t['instrutor'] ?? '-' ?></p>
           <p class="card-text mb-1"><strong class="text-secondary">Dia:</strong> <?= $t['dia'] ?? '-' ?></p>
           <p class="card-text mb-1"><strong class="text-secondary">Período:</strong> <?= $t['periodo'] ?? '-' ?></p>
@@ -272,20 +361,53 @@ document.addEventListener("DOMContentLoaded", function () {
               Disponíveis: <?= $t['disponiveis'] ?>
             </strong>
           </p>
+
+          <!-- Área de ações da turma -->
           <div class="mt-auto">
-            <button class="btn btn-sm btn-outline-dark expandir mb-2" data-id="<?= $t['id'] ?>">+</button>
-            <div class="alunos-expandido mb-2"></div>
+            <div class="area-presenca collapse">
+              <div class="border rounded p-3 mb-3 bg-light">
+                <h6 class="mb-3 text-center"><i class="bi bi-clipboard-check me-1"></i> Controle de Presença</h6>
+
+                <div class="presenca-container" data-turma-id="<?= $t['id'] ?>">
+                  <?php if ($t['hoje']): ?>
+                    <div class="text-end mb-2">
+                      <button class="btn btn-sm btn-outline-success marcar-todos" type="button">
+                        <i class="bi bi-check2-all me-1"></i> Marcar todos como presentes
+                      </button>
+                    </div>
+                  <?php endif; ?>
+
+                  <div class="d-flex justify-content-center mb-2">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                      <span class="visually-hidden">Carregando...</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-center mt-3">
+                  <button class="btn btn-primary salvar-presenca"
+                          data-turma-id="<?= $t['id'] ?>"
+                          <?= $t['hoje'] ? '' : 'disabled' ?>>
+                    <i class="bi bi-save me-1"></i> Salvar Presença
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botão de cadastro -->
             <a href="precadastro.php?turma_id=<?= $turma_id ?>"
-               class="btn btn-<?= $t['disponiveis'] <= 0 ? 'secondary' : 'success' ?> w-100"
+               class="btn btn-<?= $t['disponiveis'] <= 0 ? 'secondary' : 'success' ?> w-100 mt-2"
                <?= $t['disponiveis'] <= 0 ? 'disabled' : '' ?>>
-              Cadastrar aluno nesta turma
+              <i class="bi bi-person-plus me-1"></i> Cadastrar aluno nesta turma
             </a>
           </div>
+
         </div>
       </div>
     </div>
   <?php endforeach; ?>
 </div>
+
 
 <!-- Paginador -->
 <nav aria-label="Navegação de páginas" class="mt-4">
@@ -305,40 +427,273 @@ document.addEventListener("DOMContentLoaded", function () {
     transform: rotateY(0);
   }
 }
+
+.aluno-presenca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin: 4px 0;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+}
+
+.aluno-presenca:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.aluno-nome {
+  font-weight: 500;
+  color: #495057;
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.presenca-controles {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-presenca {
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.btn-presente {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.btn-presente:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.btn-falta {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.btn-falta:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.btn-presenca:not(.active) {
+  background-color: white;
+  color: #6c757d;
+  border-color: #dee2e6;
+}
+
+.btn-presenca.active {
+  font-weight: 600;
+  transform: scale(1.05);
+}
+
+.presenca-resumo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.contador-presentes {
+  color: #28a745;
+}
+
+.contador-faltas {
+  color: #dc3545;
+}
 </style>
 
 <script>
-document.querySelectorAll('.expandir').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const turmaId = btn.dataset.id;
-    const container = btn.nextElementSibling;
-    const isOpen = container.innerHTML.trim() !== '';
-
-    if (isOpen) {
-      container.innerHTML = '';
-      btn.textContent = '+';
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = '...';
-
-    fetch('get_alunos_turma.php?turma_id=' + turmaId)
-      .then(res => res.text())
-      .then(html => {
-        container.innerHTML = '<div class="p-2 bg-light border rounded">' + html + '</div>';
-        btn.textContent = '-';
-        btn.disabled = false;
-      })
-      .catch(() => {
-        container.innerHTML = '<div class="text-danger">Erro ao carregar alunos.</div>';
-        btn.textContent = '!';
-        btn.disabled = false;
-      });
-  });
+// Carregar alunos e presença ao inicializar a página
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.presenca-container').forEach(container => {
+        const turmaId = container.dataset.turmaId;
+        carregarPresenca(turmaId);
+    });
 });
 
-// Paginador simples (exibe 6 cards por página)
+// Carrega alunos da turma e renderiza presença
+function carregarPresenca(turmaId) {
+    const container = document.querySelector(`[data-turma-id="${turmaId}"]`);
+
+    fetch(`get_presenca_turma.php?turma_id=${turmaId}&data=${new Date().toISOString().split('T')[0]}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderizarPresenca(container, data.alunos);
+                habilitarBotaoSalvar(turmaId);
+            } else {
+                container.innerHTML = `<div class="text-danger text-center">Erro: ${data.error}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar presença:', error);
+            container.innerHTML = '<div class="text-danger text-center">Erro ao carregar dados</div>';
+        });
+}
+
+// Renderiza a lista de alunos e botões de presença
+function renderizarPresenca(container, alunos) {
+    if (alunos.length === 0) {
+        container.innerHTML = '<div class="text-muted text-center">Nenhum aluno matriculado</div>';
+        return;
+    }
+
+    let html = '<div class="presenca-resumo">';
+    html += '<span class="contador-presentes">Presentes: <span class="count-presentes">0</span></span>';
+    html += '<span class="contador-faltas">Faltas: <span class="count-faltas">0</span></span>';
+    html += '</div>';
+
+    alunos.forEach(aluno => {
+        html += `
+            <div class="aluno-presenca">
+                <span class="aluno-nome">${aluno.nome}</span>
+                <div class="presenca-controles">
+                    <button class="btn btn-presenca btn-presente ${aluno.presente ? 'active' : ''}" 
+                            onclick="marcarPresenca(${aluno.id}, true, this)">
+                        <i class="bi bi-check-circle"></i> Presente
+                    </button>
+                    <button class="btn btn-presenca btn-falta ${!aluno.presente && aluno.presente !== null ? 'active' : ''}" 
+                            onclick="marcarPresenca(${aluno.id}, false, this)">
+                        <i class="bi bi-x-circle"></i> Falta
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+    atualizarContadores(container);
+}
+
+// Controla seleção de presença por aluno
+function marcarPresenca(alunoId, presente, botao) {
+    const alunoDiv = botao.closest('.aluno-presenca');
+    alunoDiv.querySelectorAll('.btn-presenca').forEach(btn => btn.classList.remove('active'));
+    botao.classList.add('active');
+
+    alunoDiv.dataset.presente = presente;
+    alunoDiv.dataset.alunoId = alunoId;
+
+    const container = botao.closest('.presenca-container');
+    atualizarContadores(container);
+}
+
+// Atualiza contadores de presença/falta
+function atualizarContadores(container) {
+    const presentes = container.querySelectorAll('.aluno-presenca[data-presente="true"]').length;
+    const faltas = container.querySelectorAll('.aluno-presenca[data-presente="false"]').length;
+
+    container.querySelector('.count-presentes').textContent = presentes;
+    container.querySelector('.count-faltas').textContent = faltas;
+}
+
+// Habilita botão salvar se presença ainda não estiver registrada
+function habilitarBotaoSalvar(turmaId) {
+    const botao = document.querySelector(`button.salvar-presenca[data-turma-id="${turmaId}"]`);
+    const badge = botao.closest('.area-presenca').querySelector('.alert-success');
+    if (botao && !badge) {
+        botao.disabled = false;
+    }
+}
+
+// Salva a presença da turma
+function salvarPresenca(turmaId, botao) {
+    const container = document.querySelector(`.presenca-container[data-turma-id="${turmaId}"]`);
+    const alunosPresenca = container.querySelectorAll('.aluno-presenca[data-presente]');
+
+    const dados = [];
+    alunosPresenca.forEach(div => {
+        const alunoId = div.dataset.alunoId;
+        const presente = div.dataset.presente === 'true';
+        if (alunoId) {
+            dados.push({ aluno_id: alunoId, presente });
+        }
+    });
+
+    if (dados.length === 0) {
+        alert('Nenhuma presença foi marcada!');
+        return;
+    }
+
+    botao.disabled = true;
+    const textoOriginal = botao.innerHTML;
+    botao.innerHTML = '<i class="bi bi-hourglass-split"></i> Salvando...';
+
+    fetch('salvar_presenca.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            turma_id: turmaId,
+            data: new Date().toISOString().split('T')[0],
+            presencas: dados
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            botao.innerHTML = '<i class="bi bi-check-circle"></i> Salvo!';
+            botao.classList.remove('btn-primary');
+            botao.classList.add('btn-success');
+
+            setTimeout(() => {
+                botao.innerHTML = textoOriginal;
+                botao.classList.remove('btn-success');
+                botao.classList.add('btn-primary');
+                botao.disabled = true;
+            }, 2000);
+        } else {
+            throw new Error(data.error || 'Erro desconhecido');
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao salvar presença:', error);
+        alert('Erro ao salvar presença: ' + error.message);
+        botao.innerHTML = textoOriginal;
+        botao.disabled = false;
+    });
+}
+
+// Ouve cliques em "Salvar Presença"
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('salvar-presenca')) {
+        const turmaId = e.target.dataset.turmaId;
+        salvarPresenca(turmaId, e.target);
+    }
+});
+
+// Botão "Marcar Todos como Presentes"
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.marcar-todos')) {
+        const container = e.target.closest('.presenca-container');
+        container.querySelectorAll('.aluno-presenca').forEach(div => {
+            const btnPresente = div.querySelector('.btn-presente');
+            if (btnPresente && !btnPresente.classList.contains('active')) {
+                btnPresente.click();
+            }
+        });
+    }
+});
+</script>
+
+
+<!-- Scripts de funcionalidades -->
+<script>
+// === PAGINADOR ===
 document.addEventListener('DOMContentLoaded', () => {
   const cards = document.querySelectorAll('.card-entry');
   const paginador = document.getElementById('paginador');
@@ -375,15 +730,29 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-      </table>
-    </div>
-  </div>
-</div>
-<!-- Mascote Meraki Flutuante -->
+<script>
+// === BOTÃO DE EXPANSÃO DAS PRESENÇAS ===
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('.toggle-presenca').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const card = btn.closest('.card');
+      const area = card.querySelector('.area-presenca');
+      const icon = btn.querySelector('i');
+
+      area.classList.toggle('show');
+      icon.classList.toggle('bi-plus-lg');
+      icon.classList.toggle('bi-dash-lg');
+    });
+  });
+});
+</script>
+
+<!-- === MASCOTE FLUTUANTE DO MERAKI === -->
 <a href="https://wa.me/14999012381?text=Preciso%20de%20ajuda%20no%20Merakinho" target="_blank" class="mascote-whatsapp">
   <img src="assets/mascote_meraki.webp" alt="Mascote Meraki" />
   <div class="balao-ajuda">Precisa de ajuda?</div>
 </a>
+
 <style>
 .mascote-whatsapp {
   position: fixed;
@@ -427,45 +796,9 @@ document.addEventListener('DOMContentLoaded', () => {
   transform: translateY(0);
 }
 </style>
-<script>
-$(document).ready(function () {
-  const tabela = $('#tabela-turmas').DataTable({
-    language: {
-      url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
-    },
-    order: [],
-    columnDefs: [{ orderable: false, targets: 0 }]
-  });
 
-  $('#tabela-turmas tbody').on('click', 'button.expandir', function () {
-    const tr = $(this).closest('tr');
-    const row = tabela.row(tr);
-    const turmaId = $(this).data('id');
-    const btn = $(this);
-
-    if (row.child.isShown()) {
-      row.child.hide();
-      tr.removeClass('shown');
-      btn.text('+');
-    } else {
-      btn.prop('disabled', true).text('...');
-      fetch('get_alunos_turma.php?turma_id=' + turmaId)
-        .then(res => res.text())
-        .then(html => {
-          row.child('<div class="p-3 bg-light border rounded">' + html + '</div>').show();
-          tr.addClass('shown');
-          btn.text('-').prop('disabled', false);
-        })
-        .catch(() => {
-          row.child('<div class="text-danger">Erro ao carregar alunos.</div>').show();
-          tr.addClass('shown');
-          btn.text('!').prop('disabled', false);
-        });
-    }
-  });
-});
-</script>
 <script>
+// === ANIMAÇÃO DO BALÃO DO MASCOTE ===
 setTimeout(() => {
   document.querySelector('.mascote-whatsapp')?.classList.add('show-bubble');
 }, 5000);

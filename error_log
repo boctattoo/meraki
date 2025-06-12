@@ -422,3 +422,120 @@ Stack trace:
 #0 /home2/microl68/public_html/meraki/get_tratativas.php(12): PDOStatement->execute(Array)
 #1 {main}
   thrown in /home2/microl68/public_html/meraki/get_tratativas.php on line 12
+[12-Jun-2025 15:45:59 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/cadastro_aluno.php:67
+Stack trace:
+#0 /home2/microl68/public_html/meraki/cadastro_aluno.php(67): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/cadastro_aluno.php on line 67
+[12-Jun-2025 17:39:54 America/Fortaleza] PHP Parse error:  syntax error, unexpected single-quoted string "] ?>">", expecting "," or ";" in /home2/microl68/public_html/meraki/mapa_turmas.php on line 154
+[12-Jun-2025 18:44:38 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 152
+[12-Jun-2025 18:44:38 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 152
+[12-Jun-2025 18:44:38 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[12-Jun-2025 18:44:38 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[12-Jun-2025 18:44:38 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[12-Jun-2025 18:44:38 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 170
+[12-Jun-2025 18:44:38 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 170
+[12-Jun-2025 18:49:16 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 152
+[12-Jun-2025 18:49:16 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 152
+[12-Jun-2025 18:49:16 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[12-Jun-2025 18:49:16 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[12-Jun-2025 18:49:16 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[12-Jun-2025 18:49:16 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 170
+[12-Jun-2025 18:49:16 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 170
+[12-Jun-2025 18:49:34 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/editar_aluno.php:40
+Stack trace:
+#0 /home2/microl68/public_html/meraki/editar_aluno.php(40): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/editar_aluno.php on line 40
+[12-Jun-2025 18:49:45 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 152
+[12-Jun-2025 18:49:45 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 152
+[12-Jun-2025 18:49:45 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[12-Jun-2025 18:49:45 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[12-Jun-2025 18:49:45 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 161
+[12-Jun-2025 18:49:45 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 170
+[12-Jun-2025 18:49:45 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 170
+[12-Jun-2025 18:53:12 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 153
+[12-Jun-2025 18:53:12 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 153
+[12-Jun-2025 18:53:12 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 162
+[12-Jun-2025 18:53:12 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 162
+[12-Jun-2025 18:53:12 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 162
+[12-Jun-2025 18:53:12 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 171
+[12-Jun-2025 18:53:12 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 171
+[12-Jun-2025 18:53:19 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 153
+[12-Jun-2025 18:53:19 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 153
+[12-Jun-2025 18:53:19 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 162
+[12-Jun-2025 18:53:19 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 162
+[12-Jun-2025 18:53:19 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 162
+[12-Jun-2025 18:53:19 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 171
+[12-Jun-2025 18:53:19 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 171
+[12-Jun-2025 18:54:11 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 163
+[12-Jun-2025 18:54:11 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 163
+[12-Jun-2025 18:54:11 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 172
+[12-Jun-2025 18:54:11 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 172
+[12-Jun-2025 18:54:11 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 172
+[12-Jun-2025 18:54:11 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 181
+[12-Jun-2025 18:54:11 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 181
+[12-Jun-2025 18:56:07 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[12-Jun-2025 18:56:07 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 164
+[12-Jun-2025 18:56:07 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 173
+[12-Jun-2025 18:56:07 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 173
+[12-Jun-2025 18:56:07 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 173
+[12-Jun-2025 18:56:07 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 182
+[12-Jun-2025 18:56:07 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 182
+[12-Jun-2025 18:56:26 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/editar_aluno.php:40
+Stack trace:
+#0 /home2/microl68/public_html/meraki/editar_aluno.php(40): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/editar_aluno.php on line 40
+[12-Jun-2025 18:57:35 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 163
+[12-Jun-2025 18:57:35 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 163
+[12-Jun-2025 18:57:35 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 172
+[12-Jun-2025 18:57:35 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 172
+[12-Jun-2025 18:57:35 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 172
+[12-Jun-2025 18:57:35 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 181
+[12-Jun-2025 18:57:35 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 181
+[12-Jun-2025 18:57:45 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/editar_aluno.php:40
+Stack trace:
+#0 /home2/microl68/public_html/meraki/editar_aluno.php(40): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/editar_aluno.php on line 40
+[12-Jun-2025 19:03:20 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 159
+[12-Jun-2025 19:03:20 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 159
+[12-Jun-2025 19:03:20 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 168
+[12-Jun-2025 19:03:20 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 168
+[12-Jun-2025 19:03:20 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 168
+[12-Jun-2025 19:03:20 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 177
+[12-Jun-2025 19:03:20 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 177
+[12-Jun-2025 19:04:50 America/Fortaleza] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home2/microl68/public_html/meraki/nav.php:1) in /home2/microl68/public_html/meraki/editar_aluno.php on line 36
+[12-Jun-2025 19:04:50 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/editar_aluno.php:41
+Stack trace:
+#0 /home2/microl68/public_html/meraki/editar_aluno.php(41): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/editar_aluno.php on line 41
+[12-Jun-2025 19:05:04 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 159
+[12-Jun-2025 19:05:04 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 159
+[12-Jun-2025 19:05:04 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 168
+[12-Jun-2025 19:05:04 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 168
+[12-Jun-2025 19:05:04 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 168
+[12-Jun-2025 19:05:04 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 177
+[12-Jun-2025 19:05:04 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 177
+[12-Jun-2025 19:05:12 America/Fortaleza] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home2/microl68/public_html/meraki/nav.php:1) in /home2/microl68/public_html/meraki/editar_aluno.php on line 36
+[12-Jun-2025 19:05:12 America/Fortaleza] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'modalidade_id' in 'field list' in /home2/microl68/public_html/meraki/editar_aluno.php:41
+Stack trace:
+#0 /home2/microl68/public_html/meraki/editar_aluno.php(41): PDOStatement->execute(Array)
+#1 {main}
+  thrown in /home2/microl68/public_html/meraki/editar_aluno.php on line 41
+[12-Jun-2025 19:13:26 America/Fortaleza] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home2/microl68/public_html/meraki/editar_aluno.php on line 67
+[12-Jun-2025 19:18:22 America/Fortaleza] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home2/microl68/public_html/meraki/editar_aluno.php on line 84
+[12-Jun-2025 19:18:29 America/Fortaleza] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home2/microl68/public_html/meraki/editar_aluno.php on line 84
+[12-Jun-2025 19:18:53 America/Fortaleza] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home2/microl68/public_html/meraki/editar_aluno.php on line 84
+[12-Jun-2025 19:20:10 America/Fortaleza] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home2/microl68/public_html/meraki/editar_aluno.php on line 85
+[12-Jun-2025 19:33:21 America/Fortaleza] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home2/microl68/public_html/meraki/editar_aluno.php on line 85
+[12-Jun-2025 19:38:45 America/Fortaleza] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home2/microl68/public_html/meraki/editar_aluno.php on line 85
+[12-Jun-2025 19:39:08 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 86
+[12-Jun-2025 19:39:08 America/Fortaleza] PHP Warning:  Undefined array key "modalidade_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 86
+[12-Jun-2025 19:39:08 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 95
+[12-Jun-2025 19:39:08 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 95
+[12-Jun-2025 19:39:08 America/Fortaleza] PHP Warning:  Undefined array key "tipo_aluno_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 95
+[12-Jun-2025 19:39:08 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 104
+[12-Jun-2025 19:39:08 America/Fortaleza] PHP Warning:  Undefined array key "tipo_pgto_id" in /home2/microl68/public_html/meraki/editar_aluno.php on line 104
