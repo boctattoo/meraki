@@ -3,43 +3,49 @@ session_start();
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['usuario_id'])) {
-    echo json_encode(['sucesso' => false, 'erro' => 'UsuÃ¡rio nÃ£o logado']);
+    echo json_encode(['sucesso' => false, 'erro' => 'Sess«ªo expirada']);
     exit();
 }
 
 require 'conexao.php';
 
 try {
-    $sql = "SELECT t.*, u.nome as nome_usuario_atribuido, t.usuario_atribuido_id
-            FROM tarefas t 
-            LEFT JOIN usuarios u ON t.usuario_atribuido_id = u.id 
-            ORDER BY t.id DESC";
+    $sql = "SELECT 
+                t.id,
+                t.titulo,
+                t.descricao,
+                t.status,
+                t.data_evento,
+                t.prioridade,
+                t.etiqueta,
+                t.data_criacao,
+                t.usuario_id,
+                u.nome as nome_usuario_criador,
+                ua.id as usuario_atribuido_id,
+                ua.nome as nome_usuario_atribuido
+            FROM tarefas t
+            LEFT JOIN usuarios u ON t.usuario_id = u.id
+            LEFT JOIN tarefas_usuarios tu ON t.id = tu.tarefa_id
+            LEFT JOIN usuarios ua ON tu.usuario_id = ua.id
+            ORDER BY t.data_criacao DESC";
     
-    $stmt = $pdo->query($sql);
-    $todas_tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    $tarefas_organizadas = [
+    // Organizar tarefas por status
+    $tarefas = [
         'afazer' => [],
         'progresso' => [],
         'concluido' => []
     ];
     
-    foreach ($todas_tarefas as $tarefa) {
-        $status = $tarefa['status'] ?? 'afazer';
-        if (isset($tarefas_organizadas[$status])) {
-            $tarefas_organizadas[$status][] = $tarefa;
-        }
+    foreach ($resultados as $tarefa) {
+        $tarefas[$tarefa['status']][] = $tarefa;
     }
     
-    echo json_encode([
-        'sucesso' => true,
-        'tarefas' => $tarefas_organizadas
-    ]);
+    echo json_encode(['sucesso' => true, 'tarefas' => $tarefas]);
     
 } catch (Exception $e) {
-    echo json_encode([
-        'sucesso' => false,
-        'erro' => 'Erro ao carregar tarefas: ' . $e->getMessage()
-    ]);
+    echo json_encode(['sucesso' => false, 'erro' => 'Erro ao carregar tarefas: ' . $e->getMessage()]);
 }
-?>

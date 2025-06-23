@@ -4,7 +4,7 @@ if (!isset($_SESSION['usuario_id'])) {
     header('Location: login.php');
     exit();
 }
-require 'conexao.php'; // Certifique-se de que conexao.php está configurado corretamente
+require 'conexao.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -17,7 +17,6 @@ require 'conexao.php'; // Certifique-se de que conexao.php está configurado cor
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* CSS incorporado para evitar dependência de arquivo externo */
         .kanban-column {
             background-color: #f8f9fa;
             border-radius: 8px;
@@ -65,6 +64,7 @@ require 'conexao.php'; // Certifique-se de que conexao.php está configurado cor
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.2s;
+            color: #6c757d;
         }
         
         .kanban-actions button:hover {
@@ -130,19 +130,33 @@ require 'conexao.php'; // Certifique-se de que conexao.php está configurado cor
         .gu-transit {
             opacity: 0.2;
         }
+
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .status-afazer { background-color: #6c757d; color: white; }
+        .status-progresso { background-color: #fd7e14; color: white; }
+        .status-concluido { background-color: #28a745; color: white; }
     </style>
 </head>
 <body>
 
 <?php 
-// Incluir navegação se existir, senão criar uma básica
 if (file_exists('nav.php')) {
     include 'nav.php';
 } else {
     echo '<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-                <a class="navbar-brand" href="#">Sistema Meraki</a>
+                <a class="navbar-brand" href="dashboard.php">
+                    <i class="fas fa-graduation-cap"></i> Sistema Meraki
+                </a>
                 <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="dashboard.php">Dashboard</a>
+                    <a class="nav-link active" href="kanban.php">Kanban</a>
                     <a class="nav-link" href="logout.php">Sair</a>
                 </div>
             </div>
@@ -150,9 +164,9 @@ if (file_exists('nav.php')) {
 }
 ?>
 
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Painel de Tarefas (Kanban)</h2>
+        <h2><i class="fas fa-tasks"></i> Painel de Tarefas (Kanban)</h2>
         <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary" onclick="carregarTarefas()">
                 <i class="fas fa-sync-alt"></i> Atualizar
@@ -167,7 +181,9 @@ if (file_exists('nav.php')) {
         <div class="col-md-8 mb-2">
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-search"></i></span>
-                <input type="text" id="filtroBusca" class="form-control" placeholder="Buscar tarefa por título, descrição ou usuário..." onkeyup="filtrarTarefas()">
+                <input type="text" id="filtroBusca" class="form-control" 
+                       placeholder="Buscar tarefa por título, descrição ou usuário..." 
+                       onkeyup="filtrarTarefas()">
                 <button class="btn btn-outline-secondary" onclick="limparFiltro()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -224,71 +240,13 @@ if (file_exists('nav.php')) {
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Modais -->
-<?php 
-if (file_exists('modais_kanban.php')) {
-    include 'modais_kanban.php';
-} else {
-    // Modais básicos inline se o arquivo não existir
-    echo '
-    <!-- Modal Adicionar Tarefa -->
-    <div class="modal fade" id="modalAdicionarTarefa" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Adicionar Nova Tarefa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="formAdicionarTarefa">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Título *</label>
-                            <input type="text" class="form-control" id="adicionar_titulo" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Descrição</label>
-                            <textarea class="form-control" id="adicionar_descricao" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Data do Evento</label>
-                            <input type="date" class="form-control" id="adicionar_data">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Prioridade</label>
-                            <select class="form-select" id="adicionar_prioridade">
-                                <option value="">Selecione</option>
-                                <option value="Baixa">Baixa</option>
-                                <option value="Média">Média</option>
-                                <option value="Alta">Alta</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Etiqueta</label>
-                            <input type="text" class="form-control" id="adicionar_etiqueta">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Atribuir a</label>
-                            <select class="form-select" id="adicionar_usuario_atribuido">
-                                <option value="">Ninguém</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Adicionar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>';
-}
-?>
+<!-- Incluir modais -->
+<?php include 'modais_kanban.php'; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
 
 <script>
-// Classe para gerenciar o Kanban
 class KanbanManager {
     constructor() {
         this.todasAsTarefas = {
@@ -298,6 +256,7 @@ class KanbanManager {
         };
         this.todosOsUsuarios = [];
         this.dragula = null;
+        this.tarefaSendoMovida = null;
         this.init();
     }
 
@@ -350,6 +309,13 @@ class KanbanManager {
             const statusAnterior = source.closest('.kanban-column').id;
 
             if (novoStatus !== statusAnterior) {
+                this.tarefaSendoMovida = {
+                    elemento: el,
+                    tarefaId: tarefaId,
+                    statusAnterior: statusAnterior,
+                    novoStatus: novoStatus,
+                    containerOrigem: source
+                };
                 this.abrirModalTratativa(tarefaId, statusAnterior, novoStatus);
             }
         });
@@ -357,15 +323,27 @@ class KanbanManager {
 
     configurarEventListeners() {
         // Formulário de adicionar tarefa
-        const formAdicionar = document.getElementById('formAdicionarTarefa');
-        if (formAdicionar) {
-            formAdicionar.addEventListener('submit', (e) => this.adicionarTarefa(e));
-        }
+        document.getElementById('formAdicionarTarefa').addEventListener('submit', (e) => {
+            this.adicionarTarefa(e);
+        });
+
+        // Formulário de editar tarefa
+        document.getElementById('formEditarTarefa').addEventListener('submit', (e) => {
+            this.editarTarefa(e);
+        });
+
+        // Formulário de tratativa
+        document.getElementById('formTratativa').addEventListener('submit', (e) => {
+            this.salvarTratativa(e);
+        });
 
         // Event delegation para botões das tarefas
         document.querySelectorAll('.kanban-tarefas').forEach(container => {
             container.addEventListener('click', (event) => {
-                const target = event.target;
+                event.stopPropagation();
+                const target = event.target.closest('button');
+                if (!target) return;
+
                 const taskId = target.dataset.id;
                 
                 if (target.classList.contains('btn-ver-tratativas')) {
@@ -451,27 +429,33 @@ class KanbanManager {
     }
 
     criarCardTarefa(tarefa) {
-        const prioridadeClass = tarefa.prioridade ? `prioridade-${tarefa.prioridade.toLowerCase()}` : '';
-        const dataEvento = tarefa.data_evento ? `<div class="small"><i class="fas fa-calendar"></i> ${this.formatarData(tarefa.data_evento)}</div>` : '';
-        const prioridade = tarefa.prioridade ? `<div class="small ${prioridadeClass}"><i class="fas fa-exclamation-circle"></i> ${tarefa.prioridade}</div>` : '';
-        const etiqueta = tarefa.etiqueta ? `<div class="etiqueta"><i class="fas fa-tag"></i> ${tarefa.etiqueta}</div>` : '';
-        const usuario = tarefa.nome_usuario_atribuido ? `<div class="small mt-2"><i class="fas fa-user"></i> <strong>Atribuído a:</strong> ${tarefa.nome_usuario_atribuido}</div>` : '';
+        const prioridadeClass = tarefa.prioridade ? 
+            `prioridade-${tarefa.prioridade.toLowerCase().replace('é', 'e')}` : '';
+        const dataEvento = tarefa.data_evento ? 
+            `<div class="small text-muted mt-1"><i class="fas fa-calendar"></i> ${this.formatarData(tarefa.data_evento)}</div>` : '';
+        const prioridade = tarefa.prioridade ? 
+            `<div class="small ${prioridadeClass} mt-1"><i class="fas fa-exclamation-circle"></i> ${tarefa.prioridade}</div>` : '';
+        const etiqueta = tarefa.etiqueta ? 
+            `<div class="etiqueta mt-2"><i class="fas fa-tag"></i> ${tarefa.etiqueta}</div>` : '';
+        const usuario = tarefa.nome_usuario_atribuido ? 
+            `<div class="small text-muted mt-2"><i class="fas fa-user"></i> <strong>Atribuído:</strong> ${tarefa.nome_usuario_atribuido}</div>` : '';
 
         return `
-            <div class="fw-bold">${this.escapeHtml(tarefa.titulo)}</div>
-            <div class="text-muted small">${this.escapeHtml(tarefa.descricao)}</div>
+            <div class="fw-bold text-primary">${this.escapeHtml(tarefa.titulo)}</div>
+            <div class="text-muted small mt-1">${this.escapeHtml(tarefa.descricao || '')}</div>
             ${dataEvento}
             ${prioridade}
             ${etiqueta}
             ${usuario}
-            <div class="kanban-actions">
-                <button class="btn-sm btn-info btn-ver-tratativas" title="Ver Tratativas" data-id="${tarefa.id}">
+            <div class="kanban-actions mt-2">
+                <button class="btn-sm btn-outline-info btn-ver-tratativas" title="Ver Tratativas" data-id="${tarefa.id}">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button class="btn-sm btn-secondary btn-editar" title="Editar Tarefa" data-task='${JSON.stringify(tarefa)}'>
+                <button class="btn-sm btn-outline-secondary btn-editar" title="Editar Tarefa" 
+                        data-task='${JSON.stringify(tarefa)}'>
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn-sm btn-danger btn-excluir" title="Excluir Tarefa" data-id="${tarefa.id}">
+                <button class="btn-sm btn-outline-danger btn-excluir" title="Excluir Tarefa" data-id="${tarefa.id}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -502,12 +486,10 @@ class KanbanManager {
             this.todasAsTarefas[status].forEach(tarefa => {
                 let incluir = true;
 
-                // Filtro de busca
                 if (termoBusca && !this.tarefaContemTermo(tarefa, termoBusca)) {
                     incluir = false;
                 }
 
-                // Filtro de prioridade
                 if (prioridadeFiltro && tarefa.prioridade !== prioridadeFiltro) {
                     incluir = false;
                 }
@@ -523,7 +505,7 @@ class KanbanManager {
 
     tarefaContemTermo(tarefa, termo) {
         return tarefa.titulo.toLowerCase().includes(termo) ||
-               tarefa.descricao.toLowerCase().includes(termo) ||
+               (tarefa.descricao && tarefa.descricao.toLowerCase().includes(termo)) ||
                (tarefa.nome_usuario_atribuido && tarefa.nome_usuario_atribuido.toLowerCase().includes(termo)) ||
                (tarefa.etiqueta && tarefa.etiqueta.toLowerCase().includes(termo));
     }
@@ -573,6 +555,207 @@ class KanbanManager {
         }
     }
 
+    async editarTarefa(e) {
+        e.preventDefault();
+        
+        const dados = {
+            id: document.getElementById('editar_id').value,
+            titulo: document.getElementById('editar_titulo').value.trim(),
+            descricao: document.getElementById('editar_descricao').value.trim(),
+            data_evento: document.getElementById('editar_data').value,
+            prioridade: document.getElementById('editar_prioridade').value,
+            etiqueta: document.getElementById('editar_etiqueta').value.trim(),
+            usuario_atribuido: document.getElementById('editar_usuario_atribuido').value
+        };
+
+        if (!dados.titulo) {
+            this.showToast('O título da tarefa é obrigatório.', 'warning');
+            return;
+        }
+
+        try {
+            const resposta = await fetch('editar_tarefa.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            const resultado = await resposta.json();
+            if (resultado.sucesso) {
+                bootstrap.Modal.getInstance(document.getElementById('modalEditarTarefa')).hide();
+                this.showToast('Tarefa editada com sucesso!', 'success');
+                await this.carregarTarefas();
+            } else {
+                this.showToast('Erro ao editar tarefa: ' + resultado.erro, 'danger');
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            this.showToast('Erro de conexão. Tente novamente.', 'danger');
+        }
+    }
+
+    abrirModalTratativa(tarefaId, statusAnterior, novoStatus) {
+        const statusTexto = {
+            'afazer': 'A Fazer',
+            'progresso': 'Em Progresso', 
+            'concluido': 'Concluído'
+        };
+
+        document.getElementById('tratativa_tarefa_id').value = tarefaId;
+        document.getElementById('tratativa_status_anterior').value = statusAnterior;
+        document.getElementById('tratativa_status_novo').value = novoStatus;
+        document.getElementById('texto_mudanca_status').textContent = 
+            `${statusTexto[statusAnterior]} → ${statusTexto[novoStatus]}`;
+        document.getElementById('tratativa_texto').value = '';
+
+        const modal = new bootstrap.Modal(document.getElementById('modalTratativa'));
+        modal.show();
+    }
+
+    async salvarTratativa(e) {
+        e.preventDefault();
+
+        const dados = {
+            tarefa_id: document.getElementById('tratativa_tarefa_id').value,
+            novo_status: document.getElementById('tratativa_status_novo').value,
+            tratativa: document.getElementById('tratativa_texto').value.trim()
+        };
+
+        if (!dados.tratativa) {
+            this.showToast('A descrição da tratativa é obrigatória.', 'warning');
+            return;
+        }
+
+        try {
+            const resposta = await fetch('atualizar_tarefa.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            const resultado = await resposta.json();
+            if (resultado.sucesso) {
+                bootstrap.Modal.getInstance(document.getElementById('modalTratativa')).hide();
+                this.showToast('Tarefa movida com sucesso!', 'success');
+                this.tarefaSendoMovida = null;
+                await this.carregarTarefas();
+            } else {
+                this.showToast('Erro ao mover tarefa: ' + resultado.erro, 'danger');
+                this.cancelarMudancaStatus();
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            this.showToast('Erro de conexão. Tente novamente.', 'danger');
+            this.cancelarMudancaStatus();
+        }
+    }
+
+    cancelarMudancaStatus() {
+        if (this.tarefaSendoMovida) {
+            // Voltar elemento para posição original
+            this.tarefaSendoMovida.containerOrigem.appendChild(this.tarefaSendoMovida.elemento);
+            this.tarefaSendoMovida = null;
+        }
+        
+        // Fechar modal se estiver aberto
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalTratativa'));
+        if (modal) {
+            modal.hide();
+        }
+    }
+
+    async abrirModalTratativasHistorico(tarefaId) {
+        try {
+            const resposta = await fetch(`buscar_tratativas.php?tarefa_id=${tarefaId}`);
+            const dados = await resposta.json();
+
+            if (!dados.sucesso) {
+                this.showToast('Erro ao carregar tratativas: ' + dados.erro, 'danger');
+                return;
+            }
+
+            document.getElementById('historico_titulo_tarefa').textContent = dados.tarefa.titulo;
+            
+            const listaTratativas = document.getElementById('lista_tratativas');
+            if (dados.tratativas.length === 0) {
+                listaTratativas.innerHTML = '<p class="text-muted">Nenhuma tratativa registrada ainda.</p>';
+            } else {
+                listaTratativas.innerHTML = dados.tratativas.map(tratativa => {
+                    const statusTexto = {
+                        'afazer': 'A Fazer',
+                        'progresso': 'Em Progresso', 
+                        'concluido': 'Concluído'
+                    };
+
+                    return `
+                        <div class="tratativa-item">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <span class="status-badge status-${tratativa.status_anterior}">${statusTexto[tratativa.status_anterior]}</span>
+                                    <i class="fas fa-arrow-right mx-2"></i>
+                                    <span class="status-badge status-${tratativa.status_novo}">${statusTexto[tratativa.status_novo]}</span>
+                                </div>
+                                <small class="text-muted">${this.formatarDataHora(tratativa.data_tratativa)}</small>
+                            </div>
+                            <p class="mb-1">${this.escapeHtml(tratativa.tratativa)}</p>
+                            <small class="text-muted">por <strong>${tratativa.nome_usuario}</strong></small>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('modalHistoricoTratativas'));
+            modal.show();
+
+        } catch (error) {
+            console.error('Erro ao buscar tratativas:', error);
+            this.showToast('Erro de conexão ao buscar tratativas.', 'danger');
+        }
+    }
+
+    abrirModalEditar(tarefa) {
+        document.getElementById('editar_id').value = tarefa.id;
+        document.getElementById('editar_titulo').value = tarefa.titulo;
+        document.getElementById('editar_descricao').value = tarefa.descricao || '';
+        document.getElementById('editar_data').value = tarefa.data_evento || '';
+        document.getElementById('editar_prioridade').value = tarefa.prioridade || '';
+        document.getElementById('editar_etiqueta').value = tarefa.etiqueta || '';
+        document.getElementById('editar_usuario_atribuido').value = tarefa.usuario_atribuido_id || '';
+
+        const modal = new bootstrap.Modal(document.getElementById('modalEditarTarefa'));
+        modal.show();
+    }
+
+    abrirModalExcluir(tarefaId) {
+        document.getElementById('excluir_tarefa_id').value = tarefaId;
+        const modal = new bootstrap.Modal(document.getElementById('modalConfirmarExclusao'));
+        modal.show();
+    }
+
+    async confirmarExclusao() {
+        const tarefaId = document.getElementById('excluir_tarefa_id').value;
+
+        try {
+            const resposta = await fetch('excluir_tarefa.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: tarefaId })
+            });
+
+            const resultado = await resposta.json();
+            if (resultado.sucesso) {
+                bootstrap.Modal.getInstance(document.getElementById('modalConfirmarExclusao')).hide();
+                this.showToast('Tarefa excluída com sucesso!', 'success');
+                await this.carregarTarefas();
+            } else {
+                this.showToast('Erro ao excluir tarefa: ' + resultado.erro, 'danger');
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            this.showToast('Erro de conexão. Tente novamente.', 'danger');
+        }
+    }
+
     // Métodos utilitários
     formatarData(dataString) {
         if (!dataString) return '';
@@ -593,6 +776,7 @@ class KanbanManager {
     }
 
     escapeHtml(text) {
+        if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
@@ -616,32 +800,12 @@ class KanbanManager {
 
         toast.addEventListener('hidden.bs.toast', () => toast.remove());
     }
-
-    // Métodos de modal (implementar conforme necessário)
-    abrirModalTratativa(tarefaId, statusAnterior, novoStatus) {
-        // Implementar modal de tratativa
-        console.log('Abrir modal tratativa:', tarefaId, statusAnterior, novoStatus);
-    }
-
-    abrirModalTratativasHistorico(tarefaId) {
-        // Implementar modal de histórico
-        console.log('Abrir histórico:', tarefaId);
-    }
-
-    abrirModalEditar(tarefa) {
-        // Implementar modal de edição
-        console.log('Editar tarefa:', tarefa);
-    }
-
-    abrirModalExcluir(tarefaId) {
-        // Implementar modal de exclusão
-        console.log('Excluir tarefa:', tarefaId);
-    }
 }
 
-// Funções globais para compatibilidade
+// Instância global
 let kanbanManager;
 
+// Funções globais para compatibilidade
 document.addEventListener('DOMContentLoaded', () => {
     kanbanManager = new KanbanManager();
 });
@@ -661,6 +825,18 @@ function limparFiltro() {
 function carregarTarefas() {
     if (kanbanManager) {
         kanbanManager.carregarTarefas();
+    }
+}
+
+function cancelarMudancaStatus() {
+    if (kanbanManager) {
+        kanbanManager.cancelarMudancaStatus();
+    }
+}
+
+function confirmarExclusao() {
+    if (kanbanManager) {
+        kanbanManager.confirmarExclusao();
     }
 }
 </script>

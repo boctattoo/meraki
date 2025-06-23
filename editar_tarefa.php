@@ -1,41 +1,60 @@
 <?php
-// editar_tarefa.php
 session_start();
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['usuario_id'])) {
-    echo json_encode(['sucesso' => false, 'erro' => 'Usuário não autenticado.']);
+    echo json_encode(['sucesso' => false, 'erro' => 'Sessão expirada']);
     exit();
 }
 
 require 'conexao.php';
 
-$usuario_id = $_SESSION['usuario_id'];
-$data = json_decode(file_get_contents('php://input'), true);
+$input = json_decode(file_get_contents('php://input'), true);
 
-$id = $data['id'] ?? null;
-$titulo = trim($data['titulo'] ?? '');
-$descricao = trim($data['descricao'] ?? '');
-$data_evento = !empty($data['data_evento']) ? $data['data_evento'] : null;
-$prioridade = trim($data['prioridade'] ?? '');
-$etiqueta = trim($data['etiqueta'] ?? '');
-
-if (!$id || empty($titulo)) {
-    echo json_encode(['sucesso' => false, 'erro' => 'ID da tarefa ou título inválido.']);
+if (!$input || !isset($input['id']) || !isset($input['titulo']) || empty(trim($input['titulo']))) {
+    echo json_encode(['sucesso' => false, 'erro' => 'Dados incompletos ou título vazio']);
     exit();
 }
 
 try {
-    $stmt = $pdo->prepare("UPDATE tarefas SET titulo = ?, descricao = ?, data_evento = ?, prioridade = ?, etiqueta = ? WHERE id = ? AND usuario_id = ?");
-    $stmt->execute([$titulo, $descricao, $data_evento, $prioridade, $etiqueta, $id, $usuario_id]);
-
-    if ($stmt->rowCount() > 0) {
-        echo json_encode(['sucesso' => true, 'mensagem' => 'Tarefa atualizada com sucesso!']);
-    } else {
-        echo json_encode(['sucesso' => false, 'erro' => 'Tarefa não encontrada ou não pertence ao usuário, ou nenhum dado foi alterado.']);
+    $pdo->beginTransaction();
+    
+    // Atualizar tarefa
+    $sql = "UPDATE tarefas SET 
+                titulo = ?, 
+                descricao = ?, 
+                data_evento = ?, 
+                prioridade = ?, 
+                etiqueta = ?
+            WHERE id = ?";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        trim($input['titulo']),
+        trim($input['descricao'] ?? ''),
+        !empty($input['data_evento']) ? $input['data_evento'] : null,
+        !empty($input['prioridade']) ? $input['prioridade'] : null,
+        trim($input['etiqueta'] ?? ''),
+        $input['id']
+    ]);
+    
+    // Atualizar usuário atribuído
+    // Primeiro remover atribuição atual
+    $sql_del = "DELETE FROM tarefas_usuarios WHERE tarefa_id = ?";
+    $stmt_del = $pdo->prepare($sql_del);
+    $stmt_del->execute([$input['id']]);
+    
+    // Se foi atribuído a alguém, inserir nova atribuição
+    if (!empty($input['usuario_atribuido'])) {
+        $sql_user = "INSERT INTO tarefas_usuarios (tarefa_id, usuario_id) VALUES (?, ?)";
+        $stmt_user = $pdo->prepare($sql_user);
+        $stmt_user->execute([$input['id'], $input['usuario_atribuido']]);
     }
-
-} catch (PDOException $e) {
-    echo json_encode(['sucesso' => false, 'erro' => 'Erro ao atualizar tarefa: ' . $e->getMessage()]);
+    
+    $pdo->commit();
+    echo json_encode(['sucesso' => true]);
+    
+} catch (Exception $e) {
+    $pdo->rollBack();
+    echo json_encode(['sucesso' => false, 'erro' => 'Erro ao editar tarefa: ' . $e->getMessage()]);
 }
-?>

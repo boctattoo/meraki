@@ -11,797 +11,802 @@ if (!isset($_SESSION['usuario_id'])) {
 
 require 'conexao.php';
 
-$filtro_dia = $_GET['dia'] ?? '';
-$filtro_instrutor = $_GET['instrutor'] ?? '';
-$filtro_vagas = $_GET['vagas'] ?? '';
-$filtro_tipo = $_GET['tipo'] ?? '';
+// ==================== CONFIGURAÇÕES E CONSTANTES ====================
+const ITEMS_PER_PAGE = 6;
+const DIAS_SEMANA = [
+    'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
+    'Quinta-feira', 'Sexta-feira', 'Sábado'
+];
 
-try {
-    // Buscar turmas e dados básicos
-    $sql = "
-    SELECT
-        t.id,
-        t.nome AS turma_nome,
-        i.nome AS instrutor,
-        d.nome AS dia,
-        t.vagas,
-        tt.nome AS tipo,
-        p.nome AS periodo,
-        (SELECT COUNT(*) FROM alunos_turmas at WHERE at.turma_id = t.id) AS total_alunos
-    FROM turmas t
-    LEFT JOIN instrutores i ON t.instrutor_id = i.id
-    LEFT JOIN dias_semana d ON t.dia_semana_id = d.id
-    LEFT JOIN periodos p ON t.periodo_id = p.id
-    LEFT JOIN tipos_turma tt ON t.tipo_id = tt.id
-    GROUP BY t.id
-    ";
-    $todas_turmas = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+// ==================== FUNÇÕES AUXILIARES CORRIGIDAS ====================
 
-    // Dia da semana atual
-    $dias_semana = [
-        'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
-        'Quinta-feira', 'Sexta-feira', 'Sábado'
+/**
+ * Mapeia nomes alternativos de dias para os corretos do banco
+ */
+function mapearDiaSemana(string $dia): string {
+    $diaNormalizado = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT', $dia));
+    
+    $mapeamento = [
+        'terca' => 'Terça',
+        'tercas' => 'Terça',
+        'sabado' => 'Sábado', 
+        'sabados' => 'Sábado',
+        'quarta' => 'Quarta',
+        'quartas' => 'Quarta',
+        'quinta' => 'Quinta',
+        'quintas' => 'Quinta',
+        'segunda' => 'Segunda',
+        'segundas' => 'Segunda',
+        'sexta' => 'Sexta',
+        'sextas' => 'Sexta',
+        'domingo' => 'Domingo',
+        'domingos' => 'Domingo',
+        'terça' => 'Terça',
+        'terças' => 'Terça',
+        'sábado' => 'Sábado',
+        'sábados' => 'Sábado',
+        'Segunda' => 'Segunda',
+        'Terça' => 'Terça',
+        'Quarta' => 'Quarta', 
+        'Quinta' => 'Quinta',
+        'Sexta' => 'Sexta',
+        'Sábado' => 'Sábado',
+        'Domingo' => 'Domingo'
     ];
-    $dia_hoje_nome = $dias_semana[date('w')];
-    $data_hoje = date('Y-m-d');
+    
+    if (isset($mapeamento[$diaNormalizado])) {
+        return $mapeamento[$diaNormalizado];
+    }
+    
+    if (isset($mapeamento[$dia])) {
+        return $mapeamento[$dia];
+    }
+    
+    return $dia;
+}
 
-    // Buscar turmas com presença registrada hoje
-    $presencasHoje = $pdo->query("
-        SELECT DISTINCT turma_id
-        FROM presencas
-        WHERE data = '$data_hoje'
-    ")->fetchAll(PDO::FETCH_COLUMN);
+/**
+ * Valida e sanitiza parâmetros de filtro
+ */
+function sanitizeFiltros(): array {
+    $filtros = [
+        'dia' => trim(filter_input(INPUT_GET, 'dia', FILTER_UNSAFE_RAW) ?: ''),
+        'instrutor' => trim(filter_input(INPUT_GET, 'instrutor', FILTER_UNSAFE_RAW) ?: ''),
+        'vagas' => trim(filter_input(INPUT_GET, 'vagas', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: ''),
+        'tipo' => trim(filter_input(INPUT_GET, 'tipo', FILTER_UNSAFE_RAW) ?: ''),
+        'limpar' => filter_input(INPUT_GET, 'limpar', FILTER_VALIDATE_BOOLEAN)
+    ];
+    
+    $filtros['dia'] = html_entity_decode(urldecode($filtros['dia']), ENT_QUOTES, 'UTF-8');
+    $filtros['instrutor'] = html_entity_decode(urldecode($filtros['instrutor']), ENT_QUOTES, 'UTF-8');
+    $filtros['tipo'] = html_entity_decode(urldecode($filtros['tipo']), ENT_QUOTES, 'UTF-8');
+    
+    return $filtros;
+}
 
-    $turmas = [];
-    $total_turmas = $total_alunos = $total_vagas = $total_disponiveis = 0;
+/**
+ * Carrega dados das turmas com filtros aplicados
+ */
+function carregarTurmas(PDO $pdo, array $filtros): array {
+    $sql = "
+        SELECT
+            t.id,
+            t.nome AS turma_nome,
+            COALESCE(i.nome, 'Não definido') AS instrutor,
+            COALESCE(d.nome, 'Não definido') AS dia,
+            COALESCE(t.vagas_total, 0) AS vagas,
+            COALESCE(tt.nome, 'Não definido') AS tipo,
+            COALESCE(p.nome, 'Não definido') AS periodo,
+            COUNT(at.aluno_id) AS total_alunos,
+            t.ultima_presenca_em,
+            CASE 
+                WHEN t.vagas_total = 0 THEN 'SEM_LIMITE'
+                WHEN t.vagas_total > 0 AND COUNT(at.aluno_id) >= t.vagas_total THEN 'LOTADA'
+                WHEN t.vagas_total > 0 AND (t.vagas_total - COUNT(at.aluno_id)) <= 2 THEN 'QUASE_LOTADA'
+                WHEN t.vagas_total > 0 THEN 'DISPONIVEL'
+                ELSE 'SEM_LIMITE'
+            END as status_vagas_db
+        FROM turmas t
+        LEFT JOIN instrutores i ON t.instrutor_id = i.id
+        LEFT JOIN dias_semana d ON t.dia_semana_id = d.id
+        LEFT JOIN periodos p ON t.periodo_id = p.id
+        LEFT JOIN tipos_turma tt ON t.tipo_id = tt.id
+        LEFT JOIN alunos_turmas at ON t.id = at.turma_id AND at.ativo = 1
+        LEFT JOIN alunos a ON at.aluno_id = a.id AND a.status IN ('Ativo', 'ativo')
+        WHERE t.status = 'ativa'
+    ";
 
-    foreach ($todas_turmas as $t) {
-        $vagas = (int) $t['vagas'];
-        $alunos = (int) $t['total_alunos'];
-        $disponiveis = $vagas - $alunos;
-        $t['disponiveis'] = $disponiveis;
+    $params = [];
+    $conditions = [];
 
-        // É o dia da semana da turma?
-        $t['hoje'] = ($t['dia'] === $dia_hoje_nome);
-
-        // Já foi registrada presença hoje?
-        $t['presenca_registrada'] = in_array($t['id'], $presencasHoje);
-
-        // Aplicar filtros visuais
-        if (
-            ($filtro_dia && $t['dia'] !== $filtro_dia) ||
-            ($filtro_instrutor && $t['instrutor'] !== $filtro_instrutor) ||
-            ($filtro_tipo && mb_strtoupper($t['tipo'], 'UTF-8') !== mb_strtoupper($filtro_tipo, 'UTF-8')) ||
-            ($filtro_vagas === 'disponivel' && $disponiveis <= 0) ||
-            ($filtro_vagas === 'lotada' && $disponiveis > 0)
-        ) continue;
-
-        $turmas[] = $t;
-        $total_turmas++;
-        $total_alunos += $alunos;
-        $total_vagas += $vagas;
-        $total_disponiveis += $disponiveis;
+    if (!empty($filtros['dia'])) {
+        $diaMapeado = mapearDiaSemana($filtros['dia']);
+        $conditions[] = "d.nome = :dia";
+        $params[':dia'] = $diaMapeado;
     }
 
-} catch (PDOException $e) {
-    echo '<div style="margin: 2rem; color: red; font-weight: bold;">Erro ao carregar turmas: ' . $e->getMessage() . '</div>';
-    $turmas = [];
-    $total_turmas = $total_alunos = $total_vagas = $total_disponiveis = 0;
-}
-?>
+    if (!empty($filtros['instrutor'])) {
+        $conditions[] = "i.nome = :instrutor";
+        $params[':instrutor'] = $filtros['instrutor'];
+    }
 
+    if (!empty($filtros['tipo'])) {
+        $conditions[] = "UPPER(tt.nome) LIKE UPPER(:tipo)";
+        $params[':tipo'] = '%' . $filtros['tipo'] . '%';
+    }
+
+    if (!empty($conditions)) {
+        $sql .= " AND " . implode(" AND ", $conditions);
+    }
+
+    $sql .= "
+        GROUP BY t.id, t.nome, i.nome, d.nome, t.vagas_total, tt.nome, p.nome, t.ultima_presenca_em
+        ORDER BY 
+            CASE tt.nome 
+                WHEN 'MULTIMÍDIA' THEN 1 
+                WHEN 'DINÂMICO' THEN 2 
+                ELSE 3 
+            END,
+            CASE d.nome
+                WHEN 'Segunda' THEN 1
+                WHEN 'Terça' THEN 2  
+                WHEN 'Quarta' THEN 3
+                WHEN 'Quinta' THEN 4
+                WHEN 'Sexta' THEN 5
+                WHEN 'Sábado' THEN 6
+                WHEN 'Domingo' THEN 7
+                ELSE 8
+            END,
+            t.nome
+    ";
+
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return processarTurmas($turmas, $filtros);
+    } catch (PDOException $e) {
+        error_log("Erro ao carregar turmas: " . $e->getMessage());
+        return ['turmas' => [], 'estatisticas' => [], 'erro' => $e->getMessage()];
+    }
+}
+
+/**
+ * Processa dados das turmas
+ */
+function processarTurmas(array $turmasRaw, array $filtros): array {
+    $diaHoje = DIAS_SEMANA[date('w')];
+    
+    $turmasProcessadas = [];
+    $estatisticas = [
+        'total_turmas' => 0,
+        'total_alunos' => 0,
+        'total_vagas' => 0,
+        'total_disponiveis' => 0
+    ];
+
+    foreach ($turmasRaw as $turma) {
+        $turma = processarTurmaIndividual($turma, $diaHoje);
+        
+        if (!aplicarFiltroVagas($turma, $filtros['vagas'])) {
+            continue;
+        }
+
+        $turmasProcessadas[] = $turma;
+        
+        $estatisticas['total_turmas']++;
+        $estatisticas['total_alunos'] += (int)$turma['total_alunos'];
+        
+        if ((int)$turma['vagas'] > 0) {
+            $estatisticas['total_vagas'] += (int)$turma['vagas'];
+            $estatisticas['total_disponiveis'] += (int)$turma['vagas_numericas'];
+        }
+    }
+
+    return [
+        'turmas' => $turmasProcessadas,
+        'estatisticas' => $estatisticas
+    ];
+}
+
+/**
+ * Aplica filtro de vagas
+ */
+function aplicarFiltroVagas(array $turma, string $filtroVagas): bool {
+    if (empty($filtroVagas)) {
+        return true;
+    }
+    
+    if ($filtroVagas === 'disponivel') {
+        return $turma['status_vagas'] !== 'lotada';
+    } 
+    
+    if ($filtroVagas === 'lotada') {
+        return $turma['status_vagas'] === 'lotada';
+    }
+
+    return true;
+}
+
+/**
+ * Processa dados individuais de uma turma
+ */
+function processarTurmaIndividual(array $turma, string $diaHoje): array {
+    $vagas = (int)$turma['vagas'];
+    $alunos = (int)$turma['total_alunos'];
+    
+    if ($vagas == 0) {
+        $turma['disponiveis'] = 'Ilimitado';
+        $turma['vagas_numericas'] = 999;
+    } else {
+        $turma['disponiveis'] = max(0, $vagas - $alunos);
+        $turma['vagas_numericas'] = $turma['disponiveis'];
+    }
+    
+    $turma['hoje'] = ($turma['dia'] === $diaHoje);
+    
+    if (isset($turma['status_vagas_db'])) {
+        $turma['status_vagas'] = strtolower(str_replace('_', '-', $turma['status_vagas_db']));
+    } else {
+        if ($vagas == 0) {
+            $turma['status_vagas'] = 'sem-limite';
+        } elseif ($turma['disponiveis'] <= 0) {
+            $turma['status_vagas'] = 'lotada';
+        } elseif ($turma['disponiveis'] <= 2) {
+            $turma['status_vagas'] = 'quase-lotada';
+        } else {
+            $turma['status_vagas'] = 'disponivel';
+        }
+    }
+    
+    switch ($turma['status_vagas']) {
+        case 'lotada':
+            $turma['card_class'] = 'danger';
+            break;
+        case 'quase-lotada':
+            $turma['card_class'] = 'warning';
+            break;
+        case 'disponivel':
+            $turma['card_class'] = 'success';
+            break;
+        case 'sem-limite':
+            $turma['card_class'] = 'info';
+            break;
+        default:
+            $turma['card_class'] = 'secondary';
+    }
+
+    return $turma;
+}
+
+/**
+ * Carrega opções para filtros
+ */
+function carregarOpcoesFiltros(PDO $pdo): array {
+    try {
+        $dias = $pdo->query("
+            SELECT DISTINCT d.nome 
+            FROM dias_semana d 
+            INNER JOIN turmas t ON d.id = t.dia_semana_id 
+            WHERE t.status = 'ativa' 
+            ORDER BY d.id
+        ")->fetchAll(PDO::FETCH_COLUMN);
+        
+        $instrutores = $pdo->query("
+            SELECT DISTINCT i.nome 
+            FROM instrutores i 
+            INNER JOIN turmas t ON i.id = t.instrutor_id 
+            WHERE t.status = 'ativa' 
+            ORDER BY i.nome
+        ")->fetchAll(PDO::FETCH_COLUMN);
+        
+        $tipos = $pdo->query("
+            SELECT DISTINCT tt.nome 
+            FROM tipos_turma tt 
+            INNER JOIN turmas t ON tt.id = t.tipo_id 
+            WHERE t.status = 'ativa' 
+            ORDER BY tt.nome
+        ")->fetchAll(PDO::FETCH_COLUMN);
+        
+        return [
+            'dias' => $dias,
+            'instrutores' => $instrutores,
+            'tipos' => $tipos
+        ];
+    } catch (PDOException $e) {
+        error_log("Erro ao carregar opções de filtros: " . $e->getMessage());
+        return ['dias' => [], 'instrutores' => [], 'tipos' => []];
+    }
+}
+
+// ==================== PROCESSAMENTO PRINCIPAL ====================
+
+$filtros = sanitizeFiltros();
+
+if ($filtros['limpar']) {
+    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
+    exit();
+}
+
+$dadosTurmas = carregarTurmas($pdo, $filtros);
+$turmas = $dadosTurmas['turmas'];
+$estatisticas = $dadosTurmas['estatisticas'];
+$opcoesFiltros = carregarOpcoesFiltros($pdo);
+
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Título da página -->
-  <title>Controle de Presença | Mapa de Turmas</title>
-
-  <!-- Favicon da aplicação -->
-  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
-
-  <!-- CSS Bootstrap -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-
-  <!-- Estilos personalizados -->
-  <link rel="stylesheet" href="style.css"> <!-- Remova se não estiver usando -->
-
-  <!-- jQuery (se necessário) -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
-
-  <!-- JS do Bootstrap com Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-
-  <!-- Scripts personalizados -->
-  <script src="scripts.js" defer></script> <!-- Remova se não existir -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mapa de Turmas | Visualização de Vagas</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <?php if (file_exists('style.css')): ?>
+        <link rel="stylesheet" href="style.css">
+    <?php endif; ?>
+    
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    
+    <style>
+        .filtro-debug {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .filtro-ativo {
+            background: #d4edda !important;
+            border-color: #c3e6cb !important;
+        }
+        
+        .animate-entry {
+            animation: slideInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card-turma {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .card-turma:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .status-badge {
+            font-size: 0.8em;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        
+        .hoje-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+    </style>
 </head>
 
-
 <body class="bg-light">
-<?php include 'nav.php'; ?>
+    <?php if (file_exists('nav.php')) include 'nav.php'; ?>
 
-<main class="container mt-4">
-
-  <!-- Resumo Geral das Turmas -->
-  <section class="row text-center mb-4" aria-label="Resumo geral das turmas">
-
-    <?php
-    $resumos = [
-      [
-        'id' => 'contador-turmas',
-        'titulo' => 'Total de Turmas',
-        'icone' => 'bi-collection-play',
-        'cor' => 'success',
-        'tooltip' => 'Total de turmas ativas no sistema'
-      ],
-      [
-        'id' => 'contador-alunos',
-        'titulo' => 'Total de Alunos',
-        'icone' => 'bi-person-fill',
-        'cor' => 'primary',
-        'tooltip' => 'Soma dos alunos matriculados em todas as turmas'
-      ],
-      [
-        'id' => 'contador-vagas',
-        'titulo' => 'Total de Vagas',
-        'icone' => 'bi-grid-3x3-gap-fill',
-        'cor' => 'warning',
-        'tooltip' => 'Número total de vagas disponíveis e ocupadas'
-      ],
-      [
-        'id' => 'contador-disponiveis',
-        'titulo' => 'Vagas Disponíveis',
-        'icone' => 'bi-patch-check-fill',
-        'cor' => 'danger',
-        'tooltip' => 'Soma das vagas ainda disponíveis nas turmas'
-      ]
-    ];
-
-    foreach ($resumos as $r):
-    ?>
-      <div class="col-md-3">
-        <div class="card border-<?= $r['cor'] ?>">
-          <div class="card-body">
-            <h6 data-bs-toggle="tooltip" title="<?= $r['tooltip'] ?>">
-              <i class="bi <?= $r['icone'] ?> text-<?= $r['cor'] ?>"></i> <?= $r['titulo'] ?>
-            </h6>
-            <h4 class="text-<?= $r['cor'] ?> fw-bold" id="<?= $r['id'] ?>">0</h4>
-          </div>
-        </div>
-      </div>
-    <?php endforeach; ?>
-
-  </section>
-
-</main>
-
-
-
-<!-- 📅 Data Atual do Registro de Presença -->
-<div class="row justify-content-center mb-4">
-  <div class="col-auto">
-    <div class="alert alert-info d-flex align-items-center shadow-sm" role="alert" aria-label="Data de registro de presença">
-      <i class="bi bi-calendar-check me-2 fs-5"></i>
-      <strong>Registrando presença para: <?= date('d/m/Y') ?></strong>
-    </div>
-  </div>
-</div>
-
-<!-- 🎯 Legenda Visual para Status das Turmas -->
-<div class="row justify-content-center mb-4" aria-label="Legenda de status das turmas">
-  <div class="col-auto">
-    <span class="badge bg-success px-3 py-2 shadow-sm">
-      <i class="bi bi-check-circle-fill me-1"></i> Vagas disponíveis
-    </span>
-  </div>
-  <div class="col-auto">
-    <span class="badge bg-warning text-dark px-3 py-2 shadow-sm">
-      <i class="bi bi-exclamation-triangle-fill me-1"></i> Poucas vagas
-    </span>
-  </div>
-  <div class="col-auto">
-    <span class="badge bg-danger px-3 py-2 shadow-sm">
-      <i class="bi bi-x-circle-fill me-1"></i> Turma lotada
-    </span>
-  </div>
-</div>
-
-
-<script>
-// Função para animar contadores numéricos com suavidade
-function animarContador(id, valorFinal, duracao = 1500) {
-  const el = document.getElementById(id);
-  if (!el || isNaN(valorFinal)) return;
-
-  let atual = 0;
-  const frames = Math.ceil(duracao / 20);
-  const incremento = valorFinal / frames;
-
-  const intervalo = setInterval(() => {
-    atual += incremento;
-    if (atual >= valorFinal) {
-      atual = valorFinal;
-      clearInterval(intervalo);
-    }
-    el.textContent = Math.floor(atual);
-  }, 20);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  // Animação dos contadores principais
-  animarContador("contador-turmas", <?= (int)$total_turmas ?>);
-  animarContador("contador-alunos", <?= (int)$total_alunos ?>);
-  animarContador("contador-vagas", <?= (int)$total_vagas ?>);
-  animarContador("contador-disponiveis", <?= (int)$total_disponiveis ?>);
-
-  // Inicialização dos tooltips Bootstrap 5
-  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
-    new bootstrap.Tooltip(el);
-  });
-});
-</script>
-
-
-<?php if (count($turmas) > 0): ?>
-  <div class="mb-3 text-end small text-muted" aria-label="Total de turmas encontradas">
-    <span class="badge bg-secondary px-3 py-2 shadow-sm">
-      <?= count($turmas) ?> turma(s) encontrada(s) com os filtros aplicados
-    </span>
-  </div>
-<?php else: ?>
-  <div class="alert alert-warning text-center shadow-sm" role="alert" aria-live="polite">
-    <i class="bi bi-info-circle me-2"></i> Nenhuma turma encontrada com os filtros aplicados.
-  </div>
-<?php endif; ?>
-
-
- <!-- 🎯 Filtros de busca -->
-<section class="card shadow-sm mb-4" aria-label="Filtros de turmas">
-  <div class="card-header bg-primary text-white">
-    <h5 class="mb-0"><i class="bi bi-funnel-fill me-2"></i>Filtros</h5>
-  </div>
-  <div class="card-body">
-    <form class="row row-cols-1 row-cols-md-auto g-3 align-items-end" method="GET" id="filtro-form">
-
-      <!-- Dia da Semana -->
-      <div class="col">
-        <label for="filtro-dia" class="form-label">Dia da Semana</label>
-        <select name="dia" id="filtro-dia" class="form-select" onchange="document.getElementById('filtro-form').submit()">
-          <option value="">Todos</option>
-          <?php
-          $dias = $pdo->query("SELECT nome FROM dias_semana")->fetchAll(PDO::FETCH_COLUMN);
-          foreach ($dias as $dia): ?>
-            <option value="<?= $dia ?>" <?= $filtro_dia === $dia ? 'selected' : '' ?>><?= $dia ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-
-      <!-- Instrutor -->
-      <div class="col">
-        <label for="filtro-instrutor" class="form-label">Instrutor</label>
-        <select name="instrutor" id="filtro-instrutor" class="form-select" onchange="document.getElementById('filtro-form').submit()">
-          <option value="">Todos</option>
-          <?php
-          $instrutores = $pdo->query("SELECT nome FROM instrutores")->fetchAll(PDO::FETCH_COLUMN);
-          foreach ($instrutores as $inst): ?>
-            <option value="<?= $inst ?>" <?= $filtro_instrutor === $inst ? 'selected' : '' ?>><?= $inst ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-
-      <!-- Tipo de Turma -->
-      <div class="col">
-        <label for="filtro-tipo" class="form-label">Tipo</label>
-        <select name="tipo" id="filtro-tipo" class="form-select" onchange="document.getElementById('filtro-form').submit()">
-          <option value="">Todos</option>
-          <option value="DINÂMICO" <?= $filtro_tipo === 'DINÂMICO' ? 'selected' : '' ?>>DINÂMICO</option>
-          <option value="MULTIMÍDIA" <?= $filtro_tipo === 'MULTIMÍDIA' ? 'selected' : '' ?>>MULTIMÍDIA</option>
-        </select>
-      </div>
-
-      <!-- Status de Vagas -->
-      <div class="col">
-        <label for="filtro-vagas" class="form-label">Vagas</label>
-        <select name="vagas" id="filtro-vagas" class="form-select" onchange="document.getElementById('filtro-form').submit()">
-          <option value="">Todas</option>
-          <option value="disponivel" <?= $filtro_vagas === 'disponivel' ? 'selected' : '' ?>>Com vagas</option>
-          <option value="lotada" <?= $filtro_vagas === 'lotada' ? 'selected' : '' ?>>Sem vagas</option>
-        </select>
-      </div>
-
-      <!-- Botão de limpar -->
-      <div class="col">
-        <button type="submit" class="btn btn-outline-secondary w-100" name="limpar" value="1"
-          onclick="window.location.href='<?= strtok($_SERVER['REQUEST_URI'], '?') ?>'; return false;">
-          <i class="bi bi-x-circle"></i> Limpar Filtros
-        </button>
-      </div>
-
-    </form>
-  </div>
-</section>
-
-
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="cards-container">
-  <?php foreach ($turmas as $t): ?>
-    <?php
-      $cardClass = 'primary';
-      if ($t['disponiveis'] <= 0) $cardClass = 'danger';
-      elseif ($t['disponiveis'] <= 3) $cardClass = 'warning';
-      else $cardClass = 'success';
-
-      $turma_id = urlencode($t['id']);
-    ?>
-    <div class="col card-entry">
-      <div class="card h-100 animate-entry border-3 border-<?= $cardClass ?>">
-        <div class="card-body d-flex flex-column">
-
-          <!-- Cabeçalho com botão de expandir -->
-          <h5 class="card-title fw-bold text-white px-3 py-2 rounded bg-<?= $cardClass ?> d-flex justify-content-between align-items-center">
-            Turma: <?= htmlspecialchars($t['turma_nome']) ?>
-            <button type="button" class="btn btn-sm btn-light toggle-presenca" aria-expanded="false" title="Expandir/Recolher presença">
-              <i class="bi bi-plus-lg" aria-hidden="true"></i>
-            </button>
-          </h5>
-
-          <!-- Informações da turma -->
-          <p class="card-text mt-3 mb-1"><strong class="text-secondary">Instrutor:</strong> <?= $t['instrutor'] ?? '-' ?></p>
-          <p class="card-text mb-1"><strong class="text-secondary">Dia:</strong> <?= $t['dia'] ?? '-' ?></p>
-          <p class="card-text mb-1"><strong class="text-secondary">Período:</strong> <?= $t['periodo'] ?? '-' ?></p>
-          <p class="card-text mb-1"><strong class="text-secondary">Tipo:</strong> <?= $t['tipo'] ?? '-' ?></p>
-          <p class="card-text mb-2">
-            <strong class="text-secondary">Vagas:</strong> <?= $t['vagas'] ?> |
-            <strong class="text-secondary">Ocupadas:</strong> <?= $t['total_alunos'] ?> |
-            <strong class="<?= $t['disponiveis'] <= 0 ? 'text-danger' : 'text-success' ?>">
-              Disponíveis: <?= $t['disponiveis'] ?>
-            </strong>
-          </p>
-
-          <!-- Área de ações da turma -->
-          <div class="mt-auto">
-            <div class="area-presenca collapse">
-              <div class="border rounded p-3 mb-3 bg-light">
-                <h6 class="mb-3 text-center"><i class="bi bi-clipboard-check me-1"></i> Controle de Presença</h6>
-
-                <div class="presenca-container" data-turma-id="<?= $t['id'] ?>">
-                  <?php if ($t['hoje']): ?>
-                    <div class="text-end mb-2">
-                      <button class="btn btn-sm btn-outline-success marcar-todos" type="button">
-                        <i class="bi bi-check2-all me-1"></i> Marcar todos como presentes
-                      </button>
+    <main class="container-fluid mt-4">
+        
+        <!-- Resumo Geral das Turmas -->
+        <section class="row text-center mb-4" aria-label="Resumo geral das turmas">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-primary h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-collection-play text-primary"></i> 
+                            Total de Turmas
+                        </h6>
+                        <h3 class="text-primary fw-bold mb-0">
+                            <?= number_format($estatisticas['total_turmas']) ?>
+                        </h3>
                     </div>
-                  <?php endif; ?>
-
-                  <div class="d-flex justify-content-center mb-2">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status">
-                      <span class="visually-hidden">Carregando...</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="text-center mt-3">
-                  <button class="btn btn-primary salvar-presenca"
-                          data-turma-id="<?= $t['id'] ?>"
-                          <?= $t['hoje'] ? '' : 'disabled' ?>>
-                    <i class="bi bi-save me-1"></i> Salvar Presença
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Botão de cadastro -->
-            <a href="precadastro.php?turma_id=<?= $turma_id ?>"
-               class="btn btn-<?= $t['disponiveis'] <= 0 ? 'secondary' : 'success' ?> w-100 mt-2"
-               <?= $t['disponiveis'] <= 0 ? 'disabled' : '' ?>>
-              <i class="bi bi-person-plus me-1"></i> Cadastrar aluno nesta turma
-            </a>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  <?php endforeach; ?>
-</div>
-
-
-<!-- Paginador -->
-<nav aria-label="Navegação de páginas" class="mt-4">
-  <ul class="pagination justify-content-center" id="paginador"></ul>
-</nav>
-
-<style>
-.animate-entry {
-  animation: flipIn 0.8s ease forwards;
-  opacity: 0;
-  transform: rotateY(90deg);
-}
-
-@keyframes flipIn {
-  to {
-    opacity: 1;
-    transform: rotateY(0);
-  }
-}
-
-.aluno-presenca {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  margin: 4px 0;
-  background: white;
-  border-radius: 6px;
-  border: 1px solid #dee2e6;
-  transition: all 0.2s ease;
-}
-
-.aluno-presenca:hover {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.aluno-nome {
-  font-weight: 500;
-  color: #495057;
-  flex-grow: 1;
-  margin-right: 10px;
-}
-
-.presenca-controles {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-presenca {
-  padding: 4px 12px;
-  font-size: 12px;
-  border-radius: 20px;
-  transition: all 0.2s ease;
-}
-
-.btn-presente {
-  background-color: #28a745;
-  border-color: #28a745;
-  color: white;
-}
-
-.btn-presente:hover {
-  background-color: #218838;
-  border-color: #1e7e34;
-}
-
-.btn-falta {
-  background-color: #dc3545;
-  border-color: #dc3545;
-  color: white;
-}
-
-.btn-falta:hover {
-  background-color: #c82333;
-  border-color: #bd2130;
-}
-
-.btn-presenca:not(.active) {
-  background-color: white;
-  color: #6c757d;
-  border-color: #dee2e6;
-}
-
-.btn-presenca.active {
-  font-weight: 600;
-  transform: scale(1.05);
-}
-
-.presenca-resumo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  margin-bottom: 15px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.contador-presentes {
-  color: #28a745;
-}
-
-.contador-faltas {
-  color: #dc3545;
-}
-</style>
-
-<script>
-// Carregar alunos e presença ao inicializar a página
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.presenca-container').forEach(container => {
-        const turmaId = container.dataset.turmaId;
-        carregarPresenca(turmaId);
-    });
-});
-
-// Carrega alunos da turma e renderiza presença
-function carregarPresenca(turmaId) {
-    const container = document.querySelector(`[data-turma-id="${turmaId}"]`);
-
-    fetch(`get_presenca_turma.php?turma_id=${turmaId}&data=${new Date().toISOString().split('T')[0]}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                renderizarPresenca(container, data.alunos);
-                habilitarBotaoSalvar(turmaId);
-            } else {
-                container.innerHTML = `<div class="text-danger text-center">Erro: ${data.error}</div>`;
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao carregar presença:', error);
-            container.innerHTML = '<div class="text-danger text-center">Erro ao carregar dados</div>';
-        });
-}
-
-// Renderiza a lista de alunos e botões de presença
-function renderizarPresenca(container, alunos) {
-    if (alunos.length === 0) {
-        container.innerHTML = '<div class="text-muted text-center">Nenhum aluno matriculado</div>';
-        return;
-    }
-
-    let html = '<div class="presenca-resumo">';
-    html += '<span class="contador-presentes">Presentes: <span class="count-presentes">0</span></span>';
-    html += '<span class="contador-faltas">Faltas: <span class="count-faltas">0</span></span>';
-    html += '</div>';
-
-    alunos.forEach(aluno => {
-        html += `
-            <div class="aluno-presenca">
-                <span class="aluno-nome">${aluno.nome}</span>
-                <div class="presenca-controles">
-                    <button class="btn btn-presenca btn-presente ${aluno.presente ? 'active' : ''}" 
-                            onclick="marcarPresenca(${aluno.id}, true, this)">
-                        <i class="bi bi-check-circle"></i> Presente
-                    </button>
-                    <button class="btn btn-presenca btn-falta ${!aluno.presente && aluno.presente !== null ? 'active' : ''}" 
-                            onclick="marcarPresenca(${aluno.id}, false, this)">
-                        <i class="bi bi-x-circle"></i> Falta
-                    </button>
                 </div>
             </div>
-        `;
-    });
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-success h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-person-fill text-success"></i> 
+                            Total de Alunos
+                        </h6>
+                        <h3 class="text-success fw-bold mb-0">
+                            <?= number_format($estatisticas['total_alunos']) ?>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-info h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-grid-3x3-gap-fill text-info"></i> 
+                            Total de Vagas
+                        </h6>
+                        <h3 class="text-info fw-bold mb-0">
+                            <?= number_format($estatisticas['total_vagas']) ?>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-warning h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-patch-check-fill text-warning"></i> 
+                            Vagas Disponíveis
+                        </h6>
+                        <h3 class="text-warning fw-bold mb-0">
+                            <?= number_format($estatisticas['total_disponiveis']) ?>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    container.innerHTML = html;
-    atualizarContadores(container);
-}
+        <!-- Data Atual -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-auto">
+                <div class="alert alert-info d-flex align-items-center shadow-sm" role="alert">
+                    <i class="bi bi-calendar-check me-2 fs-5"></i>
+                    <strong>Visualizando turmas para: <?= date('d/m/Y') ?></strong>
+                </div>
+            </div>
+        </div>
 
-// Controla seleção de presença por aluno
-function marcarPresenca(alunoId, presente, botao) {
-    const alunoDiv = botao.closest('.aluno-presenca');
-    alunoDiv.querySelectorAll('.btn-presenca').forEach(btn => btn.classList.remove('active'));
-    botao.classList.add('active');
+        <!-- Legenda Visual -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-auto">
+                <span class="badge bg-success px-3 py-2 me-2 shadow-sm">
+                    <i class="bi bi-check-circle-fill me-1"></i> Vagas disponíveis
+                </span>
+                <span class="badge bg-warning text-dark px-3 py-2 me-2 shadow-sm">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Poucas vagas
+                </span>
+                <span class="badge bg-danger px-3 py-2 me-2 shadow-sm">
+                    <i class="bi bi-x-circle-fill me-1"></i> Turma lotada
+                </span>
+                <span class="badge bg-info px-3 py-2 shadow-sm">
+                    <i class="bi bi-infinity me-1"></i> Vagas ilimitadas
+                </span>
+            </div>
+        </div>
 
-    alunoDiv.dataset.presente = presente;
-    alunoDiv.dataset.alunoId = alunoId;
+        <!-- Filtros de busca -->
+        <section class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-funnel-fill me-2"></i>Filtros
+                </h5>
+            </div>
+            <div class="card-body">
+                <form class="row g-3 align-items-end" method="GET" id="filtro-form">
+                    <!-- Filtro por Dia -->
+                    <div class="col-md-3">
+                        <label for="filtro-dia" class="form-label">Dia da Semana</label>
+                        <select name="dia" id="filtro-dia" class="form-select <?= !empty($filtros['dia']) ? 'filtro-ativo' : '' ?>">
+                            <option value="">Todos os dias</option>
+                            <?php foreach ($opcoesFiltros['dias'] as $dia): ?>
+                                <option value="<?= htmlspecialchars($dia) ?>" <?= $filtros['dia'] === $dia ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($dia) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-    const container = botao.closest('.presenca-container');
-    atualizarContadores(container);
-}
+                    <!-- Filtro por Instrutor -->
+                    <div class="col-md-3">
+                        <label for="filtro-instrutor" class="form-label">Instrutor</label>
+                        <select name="instrutor" id="filtro-instrutor" class="form-select <?= !empty($filtros['instrutor']) ? 'filtro-ativo' : '' ?>">
+                            <option value="">Todos os instrutores</option>
+                            <?php foreach ($opcoesFiltros['instrutores'] as $instrutor): ?>
+                                <option value="<?= htmlspecialchars($instrutor) ?>" <?= $filtros['instrutor'] === $instrutor ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($instrutor) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-// Atualiza contadores de presença/falta
-function atualizarContadores(container) {
-    const presentes = container.querySelectorAll('.aluno-presenca[data-presente="true"]').length;
-    const faltas = container.querySelectorAll('.aluno-presenca[data-presente="false"]').length;
+                    <!-- Filtro por Tipo -->
+                    <div class="col-md-2">
+                        <label for="filtro-tipo" class="form-label">Tipo</label>
+                        <select name="tipo" id="filtro-tipo" class="form-select <?= !empty($filtros['tipo']) ? 'filtro-ativo' : '' ?>">
+                            <option value="">Todos os tipos</option>
+                            <?php foreach ($opcoesFiltros['tipos'] as $tipo): ?>
+                                <option value="<?= htmlspecialchars($tipo) ?>" <?= $filtros['tipo'] === $tipo ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($tipo) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-    container.querySelector('.count-presentes').textContent = presentes;
-    container.querySelector('.count-faltas').textContent = faltas;
-}
+                    <!-- Filtro por Status de Vagas -->
+                    <div class="col-md-2">
+                        <label for="filtro-vagas" class="form-label">Status</label>
+                        <select name="vagas" id="filtro-vagas" class="form-select <?= !empty($filtros['vagas']) ? 'filtro-ativo' : '' ?>">
+                            <option value="">Todas</option>
+                            <option value="disponivel" <?= $filtros['vagas'] === 'disponivel' ? 'selected' : '' ?>>Com vagas</option>
+                            <option value="lotada" <?= $filtros['vagas'] === 'lotada' ? 'selected' : '' ?>>Sem vagas</option>
+                        </select>
+                    </div>
 
-// Habilita botão salvar se presença ainda não estiver registrada
-function habilitarBotaoSalvar(turmaId) {
-    const botao = document.querySelector(`button.salvar-presenca[data-turma-id="${turmaId}"]`);
-    const badge = botao.closest('.area-presenca').querySelector('.alert-success');
-    if (botao && !badge) {
-        botao.disabled = false;
-    }
-}
+                    <!-- Botão Limpar -->
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-secondary w-100" id="btn-limpar-filtros">
+                            <i class="bi bi-x-circle"></i> Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
 
-// Salva a presença da turma
-function salvarPresenca(turmaId, botao) {
-    const container = document.querySelector(`.presenca-container[data-turma-id="${turmaId}"]`);
-    const alunosPresenca = container.querySelectorAll('.aluno-presenca[data-presente]');
+        <!-- Resultado dos Filtros -->
+        <?php if (count($turmas) > 0): ?>
+            <div class="mb-3 text-end">
+                <span class="badge bg-secondary px-3 py-2 shadow-sm">
+                    <i class="bi bi-search me-1"></i>
+                    <?= count($turmas) ?> turma(s) encontrada(s)
+                </span>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-warning text-center shadow-sm" role="alert">
+                <i class="bi bi-info-circle me-2"></i> 
+                Nenhuma turma encontrada com os filtros aplicados.
+                <button type="button" class="btn btn-link p-0 ms-2" id="btn-limpar-inline">
+                    Limpar filtros
+                </button>
+            </div>
+        <?php endif; ?>
 
-    const dados = [];
-    alunosPresenca.forEach(div => {
-        const alunoId = div.dataset.alunoId;
-        const presente = div.dataset.presente === 'true';
-        if (alunoId) {
-            dados.push({ aluno_id: alunoId, presente });
-        }
-    });
+        <!-- Cards das Turmas -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="cards-container">
+            <?php foreach ($turmas as $index => $turma): ?>
+                <div class="col card-entry animate-entry" style="animation-delay: <?= $index * 0.1 ?>s">
+                    <div class="card card-turma h-100 border-<?= $turma['card_class'] ?> border-2">
+                        <div class="card-body d-flex flex-column">
+                            
+                            <!-- Cabeçalho da Turma -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title fw-bold text-<?= $turma['card_class'] ?> mb-0">
+                                    <?= htmlspecialchars($turma['turma_nome']) ?>
+                                </h5>
+                                <div class="d-flex flex-column align-items-end">
+                                    <span class="status-badge bg-<?= $turma['card_class'] ?> text-white">
+                                        <?= is_numeric($turma['disponiveis']) ? $turma['disponiveis'] . ' vagas' : $turma['disponiveis'] ?>
+                                    </span>
+                                    <?php if ($turma['hoje']): ?>
+                                        <span class="hoje-badge mt-1">
+                                            <i class="bi bi-calendar-check"></i> Hoje
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
 
-    if (dados.length === 0) {
-        alert('Nenhuma presença foi marcada!');
-        return;
-    }
+                            <!-- Informações da Turma -->
+                            <div class="row g-2 mb-3 text-sm">
+                                <div class="col-6">
+                                    <strong class="text-muted">Instrutor:</strong><br>
+                                    <span class="text-truncate"><?= htmlspecialchars($turma['instrutor']) ?></span>
+                                </div>
+                                <div class="col-6">
+                                    <strong class="text-muted">Dia/Período:</strong><br>
+                                    <span><?= htmlspecialchars($turma['dia']) ?> - <?= htmlspecialchars($turma['periodo']) ?></span>
+                                </div>
+                                <div class="col-6">
+                                    <strong class="text-muted">Tipo:</strong><br>
+                                    <span><?= htmlspecialchars($turma['tipo']) ?></span>
+                                </div>
+                                <div class="col-6">
+                                    <strong class="text-muted">Ocupação:</strong><br>
+                                    <span>
+                                        <?= $turma['total_alunos'] ?>/<?= 
+                                            (int)$turma['vagas'] > 0 ? $turma['vagas'] : '∞' 
+                                        ?> alunos
+                                    </span>
+                                </div>
+                            </div>
 
-    botao.disabled = true;
-    const textoOriginal = botao.innerHTML;
-    botao.innerHTML = '<i class="bi bi-hourglass-split"></i> Salvando...';
+                            <!-- Botão de Cadastro -->
+                            <div class="mt-auto">
+                                <?php 
+                                    $podeMatricular = ($turma['status_vagas'] !== 'lotada');
+                                    $textoBotao = $podeMatricular ? 'Cadastrar Aluno' : 'Turma Lotada';
+                                    $classeBotao = $podeMatricular ? 'success' : 'secondary';
+                                ?>
+                                <a href="precadastro.php?turma_id=<?= urlencode($turma['id']) ?>"
+                                   class="btn btn-<?= $classeBotao ?> btn-lg w-100"
+                                   <?= !$podeMatricular ? 'onclick="return false;" style="cursor: not-allowed;"' : '' ?>>
+                                    <i class="bi bi-person-plus me-2"></i>
+                                    <?= $textoBotao ?>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
 
-    fetch('salvar_presenca.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            turma_id: turmaId,
-            data: new Date().toISOString().split('T')[0],
-            presencas: dados
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            botao.innerHTML = '<i class="bi bi-check-circle"></i> Salvo!';
-            botao.classList.remove('btn-primary');
-            botao.classList.add('btn-success');
+        <!-- Paginação -->
+        <nav aria-label="Paginação de turmas" class="mt-4">
+            <ul class="pagination justify-content-center" id="paginacao"></ul>
+        </nav>
+    </main>
 
-            setTimeout(() => {
-                botao.innerHTML = textoOriginal;
-                botao.classList.remove('btn-success');
-                botao.classList.add('btn-primary');
-                botao.disabled = true;
-            }, 2000);
-        } else {
-            throw new Error(data.error || 'Erro desconhecido');
-        }
-    })
-    .catch(error => {
-        console.error('Erro ao salvar presença:', error);
-        alert('Erro ao salvar presença: ' + error.message);
-        botao.innerHTML = textoOriginal;
-        botao.disabled = false;
-    });
-}
-
-// Ouve cliques em "Salvar Presença"
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('salvar-presenca')) {
-        const turmaId = e.target.dataset.turmaId;
-        salvarPresenca(turmaId, e.target);
-    }
-});
-
-// Botão "Marcar Todos como Presentes"
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.marcar-todos')) {
-        const container = e.target.closest('.presenca-container');
-        container.querySelectorAll('.aluno-presenca').forEach(div => {
-            const btnPresente = div.querySelector('.btn-presente');
-            if (btnPresente && !btnPresente.classList.contains('active')) {
-                btnPresente.click();
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Mapa de Turmas carregado!');
+            
+            // Configurar filtros
+            const filtros = {
+                dia: document.getElementById('filtro-dia'),
+                instrutor: document.getElementById('filtro-instrutor'),
+                tipo: document.getElementById('filtro-tipo'),
+                vagas: document.getElementById('filtro-vagas')
+            };
+            
+            const form = document.getElementById('filtro-form');
+            const btnLimpar = document.getElementById('btn-limpar-filtros');
+            const btnLimparInline = document.getElementById('btn-limpar-inline');
+            
+            // Função para submeter o formulário
+            function submitForm() {
+                console.log('🔍 Aplicando filtros...');
+                form.submit();
             }
+            
+            // Event listeners para os filtros
+            Object.keys(filtros).forEach(key => {
+                if (filtros[key]) {
+                    filtros[key].addEventListener('change', function() {
+                        if (this.value) {
+                            this.classList.add('filtro-ativo');
+                        } else {
+                            this.classList.remove('filtro-ativo');
+                        }
+                        setTimeout(submitForm, 100);
+                    });
+                }
+            });
+            
+            // Função para limpar filtros
+            function limparFiltros() {
+                const urlSemParams = window.location.pathname;
+                window.location.href = urlSemParams;
+            }
+            
+            if (btnLimpar) {
+                btnLimpar.addEventListener('click', limparFiltros);
+            }
+            
+            if (btnLimparInline) {
+                btnLimparInline.addEventListener('click', limparFiltros);
+            }
+            
+            // Configurar paginação
+            setupPagination();
         });
-    }
-});
-</script>
 
-
-<!-- Scripts de funcionalidades -->
-<script>
-// === PAGINADOR ===
-document.addEventListener('DOMContentLoaded', () => {
-  const cards = document.querySelectorAll('.card-entry');
-  const paginador = document.getElementById('paginador');
-  const porPagina = 6;
-  let paginaAtual = 1;
-  const totalPaginas = Math.ceil(cards.length / porPagina);
-
-  function atualizarPaginador() {
-    paginador.innerHTML = '';
-    for (let i = 1; i <= totalPaginas; i++) {
-      const li = document.createElement('li');
-      li.className = 'page-item' + (i === paginaAtual ? ' active' : '');
-      const btn = document.createElement('button');
-      btn.className = 'page-link';
-      btn.textContent = i;
-      btn.addEventListener('click', () => {
-        paginaAtual = i;
-        mostrarPagina();
-        atualizarPaginador();
-      });
-      li.appendChild(btn);
-      paginador.appendChild(li);
-    }
-  }
-
-  function mostrarPagina() {
-    cards.forEach((card, idx) => {
-      card.style.display = (idx >= (paginaAtual - 1) * porPagina && idx < paginaAtual * porPagina) ? 'block' : 'none';
-    });
-  }
-
-  mostrarPagina();
-  atualizarPaginador();
-});
-</script>
-
-<script>
-// === BOTÃO DE EXPANSÃO DAS PRESENÇAS ===
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll('.toggle-presenca').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const card = btn.closest('.card');
-      const area = card.querySelector('.area-presenca');
-      const icon = btn.querySelector('i');
-
-      area.classList.toggle('show');
-      icon.classList.toggle('bi-plus-lg');
-      icon.classList.toggle('bi-dash-lg');
-    });
-  });
-});
-</script>
-
-<!-- === MASCOTE FLUTUANTE DO MERAKI === -->
-<a href="https://wa.me/14999012381?text=Preciso%20de%20ajuda%20no%20Merakinho" target="_blank" class="mascote-whatsapp">
-  <img src="assets/mascote_meraki.webp" alt="Mascote Meraki" />
-  <div class="balao-ajuda">Precisa de ajuda?</div>
-</a>
-
-<style>
-.mascote-whatsapp {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-}
-
-.mascote-whatsapp img {
-  width: 70px;
-  height: auto;
-  transition: transform 0.2s ease-in-out;
-}
-
-.mascote-whatsapp:hover img {
-  transform: scale(1.1);
-}
-
-.balao-ajuda {
-  background-color: #25D366;
-  color: white;
-  font-weight: 500;
-  padding: 8px 14px;
-  border-radius: 25px;
-  font-size: 14px;
-  margin-top: 6px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-.mascote-whatsapp:hover .balao-ajuda,
-.mascote-whatsapp.show-bubble .balao-ajuda {
-  opacity: 1;
-  transform: translateY(0);
-}
-</style>
-
-<script>
-// === ANIMAÇÃO DO BALÃO DO MASCOTE ===
-setTimeout(() => {
-  document.querySelector('.mascote-whatsapp')?.classList.add('show-bubble');
-}, 5000);
-</script>
+        // ==================== PAGINAÇÃO ====================
+        function setupPagination() {
+            const itemsPerPage = <?= ITEMS_PER_PAGE ?>;
+            const cards = document.querySelectorAll('.card-entry');
+            const pagination = document.getElementById('paginacao');
+            
+            if (!pagination || cards.length === 0) return;
+            
+            const totalPages = Math.ceil(cards.length / itemsPerPage);
+            let currentPage = 1;
+            
+            function showPage(page) {
+                cards.forEach((card, index) => {
+                    const startIndex = (page - 1) * itemsPerPage;
+                    const endIndex = startIndex + itemsPerPage;
+                    card.style.display = (index >= startIndex && index < endIndex) ? 'block' : 'none';
+                });
+            }
+            
+            function updatePagination() {
+                pagination.innerHTML = '';
+                
+                if (totalPages <= 1) {
+                    pagination.style.display = 'none';
+                    return;
+                }
+                
+                pagination.style.display = 'flex';
+                
+                // Botão anterior
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                const prevButton = document.createElement('button');
+                prevButton.className = 'page-link';
+                prevButton.innerHTML = '<i class="bi bi-chevron-left"></i>';
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        showPage(currentPage);
+                        updatePagination();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
+                prevLi.appendChild(prevButton);
+                pagination.appendChild(prevLi);
+                
+                // Páginas numeradas
+                for (let i = 1; i <= totalPages; i++) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                    
+                    const button = document.createElement('button');
+                    button.className = 'page-link';
+                    button.textContent = i;
+                    button.addEventListener('click', () => {
+                        currentPage = i;
+                        showPage(currentPage);
+                        updatePagination();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                    
+                    li.appendChild(button);
+                    pagination.appendChild(li);
+                }
+                
+                // Botão próximo
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+                const nextButton = document.createElement('button');
+                nextButton.className = 'page-link';
+                nextButton.innerHTML = '<i class="bi bi-chevron-right"></i>';
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        showPage(currentPage);
+                        updatePagination();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
+                nextLi.appendChild(nextButton);
+                pagination.appendChild(nextLi);
+            }
+            
+            showPage(currentPage);
+            updatePagination();
+        }
+    </script>
+    
 </body>
 </html>
